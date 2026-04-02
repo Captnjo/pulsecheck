@@ -30,7 +30,7 @@
 
 - [ ] **LIFE-01**: App runs as LSUIElement (no Dock icon)
 - [ ] **LIFE-02**: Dropdown includes Quit menu item
-- [ ] **LIFE-03**: App supports Launch at Login via SMAppService
+- [x] **LIFE-03**: App supports Launch at Login via SMAppService
 
 ## v2 Requirements
 
@@ -75,7 +75,7 @@
 | PANEL-02 | Phase 3 | Pending |
 | PANEL-03 | Phase 3 | Pending |
 | PANEL-04 | Phase 3 | Pending |
-| LIFE-03 | Phase 4 | Pending |
+| LIFE-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 12 total

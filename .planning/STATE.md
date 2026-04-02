@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 02-live-data 02-01-PLAN.md (checkpoint:human-verify pending)"
-last_updated: "2026-04-02T08:41:03.705Z"
-last_activity: 2026-04-02
+stopped_at: "Completed 04-launch-readiness 04-01-PLAN.md Task 1 (checkpoint:human-verify pending for Task 2)"
+last_updated: "2026-04-02T08:47:25.094Z"
+last_activity: 2026-04-02 -- Phase 04 execution started
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 6
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Instant visibility into Claude Code usage limits without leaving the desktop
-**Current focus:** Phase 03 — Dropdown Panel
+**Current focus:** Phase 04 — Launch Readiness
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
-Status: Executing Phase 03
-Last activity: 2026-04-02
+Phase: 04 (Launch Readiness) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 04
+Last activity: 2026-04-02 -- Phase 04 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P02 | 15 | 2 tasks | 6 files |
 | Phase 01-foundation P03 | 15 | 2 tasks | 5 files |
 | Phase 02-live-data P01 | 2 | 2 tasks | 2 files |
+| Phase 04-launch-readiness P01 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: fiveHour is primary display value in menu bar; sevenDay is fallback; --% if both nil
 - [Phase 02-live-data]: Polling uses stored Task property with startPolling/stopPolling pair; app lifecycle cleans up via applicationWillTerminate
 - [Phase 02-live-data]: API error display changed to em dash without % to distinguish from loading state per DISP-01 locked decision
+- [Phase 04-launch-readiness]: SMAppService binding kept inline in the view — no UsageStore changes required, OS provides current state on each render
+- [Phase 04-launch-readiness]: Toggle inserted in both normalState() and errorState() branches so it is always accessible regardless of API state
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T07:16:34.614Z
-Stopped at: Completed 02-live-data 02-01-PLAN.md (checkpoint:human-verify pending)
+Last session: 2026-04-02T08:47:16.778Z
+Stopped at: Completed 04-launch-readiness 04-01-PLAN.md Task 1 (checkpoint:human-verify pending for Task 2)
 Resume file: None

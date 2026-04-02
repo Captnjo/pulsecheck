@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Foundation** - Working app shell, Keychain credential read, API endpoint verified
 - [ ] **Phase 2: Live Data** - 60-second polling engine, live usage percentage in menu bar
 - [ ] **Phase 3: Dropdown Panel** - Full panel UI with daily/weekly meters, reset countdown, error state
-- [ ] **Phase 4: Launch Readiness** - Launch at Login, clean quit, adaptive icon behavior
+- [x] **Phase 4: Launch Readiness** - Launch at Login, clean quit, adaptive icon behavior (completed 2026-04-02)
 
 ## Phase Details
 
@@ -74,7 +74,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Launch at Login toggle in UsagePanelView using SMAppService.mainApp, with human-verify checkpoint
+- [x] 04-01-PLAN.md — Launch at Login toggle in UsagePanelView using SMAppService.mainApp, with human-verify checkpoint
 
 ## Progress
 
@@ -86,4 +86,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete |  |
 | 2. Live Data | 0/1 | In Progress | - |
 | 3. Dropdown Panel | 0/1 | Not started | - |
-| 4. Launch Readiness | 0/1 | Not started | - |
+| 4. Launch Readiness | 1/1 | Complete   | 2026-04-02 |
