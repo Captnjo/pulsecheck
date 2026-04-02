@@ -23,11 +23,21 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 
 ## Install
 
-### Download DMG
+### Download
 
-1. Download the latest `.dmg` from [Releases](../../releases)
-2. Open the DMG and drag **PulseCheck** to your Applications folder
-3. Launch the app — on first run, right-click > **Open** (or System Settings > Privacy & Security > Open Anyway) since the app is not notarized
+**[Download PulseCheck-1.0.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.0/PulseCheck-1.0.dmg)**
+
+### Setup
+
+1. Make sure [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is installed and you've logged in (`claude auth login`)
+2. Open the downloaded DMG
+3. Drag **PulseCheck** into your **Applications** folder
+4. Launch PulseCheck from Applications
+5. macOS will warn the app is from an unidentified developer — click **Cancel**, then:
+   - Go to **System Settings > Privacy & Security**
+   - Scroll down to the security section — you'll see "PulseCheck was blocked"
+   - Click **Open Anyway** and confirm
+6. The Claude sparkle icon and your usage percentage will appear in the menu bar
 
 ### Build from source
 
