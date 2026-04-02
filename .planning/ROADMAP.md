@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Xcode project scaffold: Info.plist (LSUIElement), entitlements, AppDelegate, StatusBarController with —% and Quit
 - [x] 01-02-PLAN.md — Credential reading: KeychainService (claudeAiOauth wrapper), CredentialsService (file fallback), UsageStore (@Observable)
-- [ ] 01-03-PLAN.md — API verification: UsageResponse Codable models, AnthropicAPIClient, wire fetchUsage into UsageStore
+- [x] 01-03-PLAN.md — API verification: UsageResponse Codable models, AnthropicAPIClient, wire fetchUsage into UsageStore
 
 ### Phase 2: Live Data
 **Goal**: Users see their current Claude Code usage percentage update automatically in the menu bar
