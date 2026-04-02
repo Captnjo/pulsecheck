@@ -63,6 +63,13 @@ class UsageStore {
         }
     }
 
+    func manualRefresh() async {
+        pollingTask?.cancel()
+        pollingTask = nil
+        await fetchUsage()
+        startPolling()
+    }
+
     func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil

@@ -76,19 +76,17 @@ struct UsagePanelView: View {
     @ViewBuilder
     private func timestampAndRefreshRow() -> some View {
         HStack {
-            TimelineView(.periodic(from: Date(), by: 60)) { _ in
-                Text(relativeTimestamp(for: store.lastFetchDate))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text(lastUpdatedText(for: store.lastFetchDate))
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Spacer()
             Button {
                 Task { @MainActor in
-                    await store.fetchUsage()
-                    store.startPolling()
+                    await store.manualRefresh()
                 }
             } label: {
                 Image(systemName: "arrow.clockwise")
+                    .font(.caption)
                     .rotationEffect(.degrees(store.isFetching ? 360 : 0))
                     .animation(
                         store.isFetching
@@ -96,17 +94,20 @@ struct UsagePanelView: View {
                             : .default,
                         value: store.isFetching
                     )
+                    .frame(width: 20, height: 20)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
             .disabled(store.isFetching)
         }
     }
 
-    private func relativeTimestamp(for date: Date?) -> String {
+    private func lastUpdatedText(for date: Date?) -> String {
         guard let date else { return "Not yet updated" }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return "Updated \(formatter.localizedString(for: date, relativeTo: Date()))"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma"
+        formatter.amSymbol = "am"
+        formatter.pmSymbol = "pm"
+        return "Updated \(formatter.string(from: date))"
     }
 
     @ViewBuilder
