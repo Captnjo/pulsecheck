@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Polish & Resilience
-status: verifying
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-02T19:49:21.683Z"
+status: executing
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-04-02T21:03:42.957Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Instant visibility into Claude Code usage limits without leaving the desktop
-**Current focus:** Phase 06 — ux-improvements
+**Current focus:** Phase 07 — auth-resilience
 
 ## Current Position
 
-Phase: 06 (ux-improvements) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
+Phase: 07 (auth-resilience) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-02
 
 Progress: [..........] 0%
@@ -42,6 +42,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 05-visual-polish]: No contentTintColor on NSStatusBarButton — tints both icon and text; template image is the correct approach
 - [Phase 06-ux-improvements]: Used absolute timestamp format instead of relative (RelativeDateTimeFormatter) — avoids stale-looking timestamps when panel opens after a long interval
 - [Phase 06-ux-improvements]: Used .borderless button style for refresh button in panel — .plain did not render correctly in menu bar panel context
+- [Phase 07-auth-resilience]: defer-refreshTask-nil-inside-task-closure: ensures concurrent callers receive result after property is cleared
+- [Phase 07-auth-resilience]: scope-preservation-in-toCredentials: OAuth refresh response omits scopes; carry forward from pre-refresh credentials
 
 ### Critical Architecture Notes
 
@@ -62,6 +64,6 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-04-02T19:49:21.681Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-02T21:03:42.955Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None

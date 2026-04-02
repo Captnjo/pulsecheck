@@ -17,7 +17,7 @@
 
 ### Auth Resilience
 
-- [ ] **AUTH-10**: App refreshes expired OAuth tokens using refresh_token grant when Claude Code hasn't already refreshed them, storing refreshed tokens in a PulseCheck-owned shadow Keychain item
+- [x] **AUTH-10**: App refreshes expired OAuth tokens using refresh_token grant when Claude Code hasn't already refreshed them, storing refreshed tokens in a PulseCheck-owned shadow Keychain item
 
 ## Future Requirements
 
@@ -44,7 +44,7 @@
 | DISP-11 | Phase 5 | Complete |
 | PANEL-10 | Phase 6 | Complete |
 | PANEL-11 | Phase 6 | Complete |
-| AUTH-10 | Phase 7 | Pending |
+| AUTH-10 | Phase 7 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 4 total

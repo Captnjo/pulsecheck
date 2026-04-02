@@ -70,7 +70,7 @@ Plans:
   4. If token refresh fails, the app shows an auth error state rather than silently returning stale data
 **Plans**: 2 plans
 Plans:
-- [ ] 07-01-PLAN.md — Token refresh infrastructure (actor, shadow Keychain CRUD, 403 detection)
+- [x] 07-01-PLAN.md — Token refresh infrastructure (actor, shadow Keychain CRUD, 403 detection)
 - [ ] 07-02-PLAN.md — Wire refresh into credential loading and usage polling flows
 
 ## Progress
@@ -83,4 +83,4 @@ Plans:
 | 4. Launch Readiness | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 5. Visual Polish | v1.1 | 0/1 | Not started | - |
 | 6. UX Improvements | v1.1 | 0/1 | Not started | - |
-| 7. Auth Resilience | v1.1 | 0/2 | Not started | - |
+| 7. Auth Resilience | v1.1 | 1/2 | In Progress|  |
