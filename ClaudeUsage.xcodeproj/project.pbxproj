@@ -15,6 +15,8 @@
 		A1000061 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000071 /* KeychainService.swift */; };
 		A1000062 /* CredentialsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000072 /* CredentialsService.swift */; };
 		A1000063 /* UsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000073 /* UsageStore.swift */; };
+		A1000064 /* UsageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000074 /* UsageResponse.swift */; };
+		A1000065 /* AnthropicAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000075 /* AnthropicAPIClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		A1000071 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainService.swift; path = ClaudeUsage/Services/KeychainService.swift; sourceTree = "<group>"; };
 		A1000072 /* CredentialsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CredentialsService.swift; path = ClaudeUsage/Services/CredentialsService.swift; sourceTree = "<group>"; };
 		A1000073 /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageStore.swift; path = ClaudeUsage/Store/UsageStore.swift; sourceTree = "<group>"; };
+		A1000074 /* UsageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageResponse.swift; path = ClaudeUsage/Models/UsageResponse.swift; sourceTree = "<group>"; };
+		A1000075 /* AnthropicAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnthropicAPIClient.swift; path = ClaudeUsage/Services/AnthropicAPIClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000070 /* AppError.swift */,
+				A1000074 /* UsageResponse.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -78,6 +83,7 @@
 			children = (
 				A1000071 /* KeychainService.swift */,
 				A1000072 /* CredentialsService.swift */,
+				A1000075 /* AnthropicAPIClient.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -184,6 +190,8 @@
 				A1000061 /* KeychainService.swift in Sources */,
 				A1000062 /* CredentialsService.swift in Sources */,
 				A1000063 /* UsageStore.swift in Sources */,
+				A1000064 /* UsageResponse.swift in Sources */,
+				A1000065 /* AnthropicAPIClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
