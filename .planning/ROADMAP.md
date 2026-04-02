@@ -62,7 +62,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md — UsagePanelView (SwiftUI daily/weekly meters, reset countdowns, error state, Quit button) wired into NSPopover via NSHostingController
+- [x] 03-01-PLAN.md — UsagePanelView (SwiftUI daily/weekly meters, reset countdowns, error state, Quit button) wired into NSPopover via NSHostingController
 
 ### Phase 4: Launch Readiness
 **Goal**: The app behaves correctly as a permanent background utility — starts on login, exits cleanly
