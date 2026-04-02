@@ -19,17 +19,16 @@ struct UsagePanelView: View {
 
     @ViewBuilder
     private func normalState(response: UsageResponse) -> some View {
-        usageSection(title: "Daily (5h window)", period: response.fiveHour)
+        usageSection(title: "Daily (5h window)", period: response.fiveHour, showDate: false)
         Divider()
-        usageSection(title: "Weekly (7-day window)", period: response.sevenDay)
+        usageSection(title: "Weekly (7-day window)", period: response.sevenDay, showDate: true)
         Divider()
-        launchAtLoginToggle()
-        Divider()
-        quitButton()
+        launchClaudeButton()
+        bottomRow()
     }
 
     @ViewBuilder
-    private func usageSection(title: String, period: UsagePeriod?) -> some View {
+    private func usageSection(title: String, period: UsagePeriod?, showDate: Bool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(title)
@@ -42,7 +41,7 @@ struct UsagePanelView: View {
             ProgressView(value: period != nil ? period!.utilization / 100.0 : 0.0)
                 .progressViewStyle(.linear)
             if let period = period {
-                Text(resetCountdown(from: period.resetsAt))
+                Text(showDate ? resetDateString(from: period.resetsAt) : resetCountdown(from: period.resetsAt))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -67,37 +66,49 @@ struct UsagePanelView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         Divider()
-        launchAtLoginToggle()
-        Divider()
-        quitButton()
+        launchClaudeButton()
+        bottomRow()
     }
 
     @ViewBuilder
-    private func launchAtLoginToggle() -> some View {
-        Toggle("Launch at Login", isOn: Binding(
-            get: { SMAppService.mainApp.status == .enabled },
-            set: { enable in
-                do {
-                    if enable {
-                        try SMAppService.mainApp.register()
-                    } else {
-                        try SMAppService.mainApp.unregister()
-                    }
-                } catch {
-                    // Silently ignore — user may have denied in System Settings
-                }
+    private func launchClaudeButton() -> some View {
+        Button {
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications/Claude.app"))
+        } label: {
+            HStack {
+                Image(systemName: "arrow.up.forward.app")
+                Text("Open Claude")
             }
-        ))
-        .toggleStyle(.switch)
-    }
-
-    @ViewBuilder
-    private func quitButton() -> some View {
-        Button("Quit", role: .destructive) {
-            NSApplication.shared.terminate(nil)
+            .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
-        .frame(maxWidth: .infinity)
+        .disabled(!FileManager.default.fileExists(atPath: "/Applications/Claude.app"))
+    }
+
+    @ViewBuilder
+    private func bottomRow() -> some View {
+        HStack {
+            Toggle("Launch at Login", isOn: Binding(
+                get: { SMAppService.mainApp.status == .enabled },
+                set: { enable in
+                    do {
+                        if enable {
+                            try SMAppService.mainApp.register()
+                        } else {
+                            try SMAppService.mainApp.unregister()
+                        }
+                    } catch {
+                        // Silently ignore — user may have denied in System Settings
+                    }
+                }
+            ))
+            .toggleStyle(.switch)
+            Spacer()
+            Button("Quit", role: .destructive) {
+                NSApplication.shared.terminate(nil)
+            }
+            .buttonStyle(.bordered)
+        }
     }
 
     private func resetCountdown(from isoString: String) -> String {
@@ -120,6 +131,23 @@ struct UsagePanelView: View {
         let minutes = (seconds % 3600) / 60
         if hours > 0 { return "Resets in \(hours)h \(minutes)m at \(timeStr)" }
         return "Resets in \(minutes)m at \(timeStr)"
+    }
+
+    private func resetDateString(from isoString: String) -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        var date = isoFormatter.date(from: isoString)
+        if date == nil {
+            isoFormatter.formatOptions = [.withInternetDateTime]
+            date = isoFormatter.date(from: isoString)
+        }
+        guard let date else { return "—" }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE d MMMM 'at' h:mma"
+        formatter.amSymbol = "am"
+        formatter.pmSymbol = "pm"
+        return "Resets \(formatter.string(from: date))"
     }
 
     private func formatResetTime(_ date: Date) -> String {

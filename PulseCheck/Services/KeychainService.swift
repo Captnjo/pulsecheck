@@ -2,7 +2,7 @@ import Foundation
 import Security
 import OSLog
 
-private let logger = Logger(subsystem: "com.jo.ClaudeUsage", category: "KeychainService")
+private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "KeychainService")
 
 struct KeychainWrapper: Decodable {
     let claudeAiOauth: ClaudeOAuthCredentials

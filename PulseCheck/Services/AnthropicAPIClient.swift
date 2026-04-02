@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
 
-private let logger = Logger(subsystem: "com.jo.ClaudeUsage", category: "AnthropicAPIClient")
+private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "AnthropicAPIClient")
 
 struct AnthropicAPIClient {
     private static let usageURL = URL(string: "https://api.anthropic.com/api/oauth/usage")!
@@ -16,11 +16,6 @@ struct AnthropicAPIClient {
             let (data, response) = try await URLSession.shared.data(for: request)
             let httpResponse = response as! HTTPURLResponse
             logger.info("API response status: \(httpResponse.statusCode)")
-
-            // Log raw response for empirical verification (Phase 1 only)
-            if let raw = String(data: data, encoding: .utf8) {
-                logger.debug("Raw API response: \(raw)")
-            }
 
             switch httpResponse.statusCode {
             case 200:

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001 /* ClaudeUsageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000010 /* ClaudeUsageApp.swift */; };
+		A1000001 /* PulseCheckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000010 /* PulseCheckApp.swift */; };
 		A1000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000011 /* AppDelegate.swift */; };
 		A1000003 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000012 /* StatusBarController.swift */; };
 		A1000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000021 /* Assets.xcassets */; };
@@ -21,20 +21,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1000009 /* ClaudeUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1000010 /* ClaudeUsageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeUsageApp.swift; path = ClaudeUsage/ClaudeUsageApp.swift; sourceTree = "<group>"; };
-		A1000011 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ClaudeUsage/AppDelegate.swift; sourceTree = "<group>"; };
-		A1000012 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusBarController.swift; path = ClaudeUsage/StatusBarController.swift; sourceTree = "<group>"; };
-		A1000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ClaudeUsage/Resources/Info.plist; sourceTree = "<group>"; };
-		A1000021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ClaudeUsage/Resources/Assets.xcassets; sourceTree = "<group>"; };
-		A1000022 /* ClaudeUsage.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ClaudeUsage.entitlements; path = ClaudeUsage/Resources/ClaudeUsage.entitlements; sourceTree = "<group>"; };
-		A1000070 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = ClaudeUsage/Models/AppError.swift; sourceTree = "<group>"; };
-		A1000071 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainService.swift; path = ClaudeUsage/Services/KeychainService.swift; sourceTree = "<group>"; };
-		A1000072 /* CredentialsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CredentialsService.swift; path = ClaudeUsage/Services/CredentialsService.swift; sourceTree = "<group>"; };
-		A1000073 /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageStore.swift; path = ClaudeUsage/Store/UsageStore.swift; sourceTree = "<group>"; };
-		A1000074 /* UsageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageResponse.swift; path = ClaudeUsage/Models/UsageResponse.swift; sourceTree = "<group>"; };
-		A1000075 /* AnthropicAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnthropicAPIClient.swift; path = ClaudeUsage/Services/AnthropicAPIClient.swift; sourceTree = "<group>"; };
-		A1000080 /* UsagePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsagePanelView.swift; path = ClaudeUsage/Views/UsagePanelView.swift; sourceTree = "<group>"; };
+		A1000009 /* PulseCheck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseCheck.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000010 /* PulseCheckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PulseCheckApp.swift; path = PulseCheck/PulseCheckApp.swift; sourceTree = "<group>"; };
+		A1000011 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = PulseCheck/AppDelegate.swift; sourceTree = "<group>"; };
+		A1000012 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusBarController.swift; path = PulseCheck/StatusBarController.swift; sourceTree = "<group>"; };
+		A1000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = PulseCheck/Resources/Info.plist; sourceTree = "<group>"; };
+		A1000021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = PulseCheck/Resources/Assets.xcassets; sourceTree = "<group>"; };
+		A1000022 /* PulseCheck.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = PulseCheck.entitlements; path = PulseCheck/Resources/PulseCheck.entitlements; sourceTree = "<group>"; };
+		A1000070 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = PulseCheck/Models/AppError.swift; sourceTree = "<group>"; };
+		A1000071 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainService.swift; path = PulseCheck/Services/KeychainService.swift; sourceTree = "<group>"; };
+		A1000072 /* CredentialsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CredentialsService.swift; path = PulseCheck/Services/CredentialsService.swift; sourceTree = "<group>"; };
+		A1000073 /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageStore.swift; path = PulseCheck/Store/UsageStore.swift; sourceTree = "<group>"; };
+		A1000074 /* UsageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageResponse.swift; path = PulseCheck/Models/UsageResponse.swift; sourceTree = "<group>"; };
+		A1000075 /* AnthropicAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnthropicAPIClient.swift; path = PulseCheck/Services/AnthropicAPIClient.swift; sourceTree = "<group>"; };
+		A1000080 /* UsagePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsagePanelView.swift; path = PulseCheck/Views/UsagePanelView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,15 +51,15 @@
 		A1000000 = {
 			isa = PBXGroup;
 			children = (
-				A1000008 /* ClaudeUsage */,
+				A1000008 /* PulseCheck */,
 				A1000031 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A1000008 /* ClaudeUsage */ = {
+		A1000008 /* PulseCheck */ = {
 			isa = PBXGroup;
 			children = (
-				A1000010 /* ClaudeUsageApp.swift */,
+				A1000010 /* PulseCheckApp.swift */,
 				A1000011 /* AppDelegate.swift */,
 				A1000012 /* StatusBarController.swift */,
 				A1000032 /* Models */,
@@ -68,7 +68,7 @@
 				A1000035 /* Views */,
 				A1000030 /* Resources */,
 			);
-			name = ClaudeUsage;
+			name = PulseCheck;
 			path = "";
 			sourceTree = "<group>";
 		};
@@ -112,7 +112,7 @@
 			children = (
 				A1000020 /* Info.plist */,
 				A1000021 /* Assets.xcassets */,
-				A1000022 /* ClaudeUsage.entitlements */,
+				A1000022 /* PulseCheck.entitlements */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -120,7 +120,7 @@
 		A1000031 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1000009 /* ClaudeUsage.app */,
+				A1000009 /* PulseCheck.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,9 +128,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1000099 /* ClaudeUsage */ = {
+		A1000099 /* PulseCheck */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1000050 /* Build configuration list for PBXNativeTarget "ClaudeUsage" */;
+			buildConfigurationList = A1000050 /* Build configuration list for PBXNativeTarget "PulseCheck" */;
 			buildPhases = (
 				A1000006 /* Frameworks */,
 				A1000007 /* Sources */,
@@ -140,9 +140,9 @@
 			);
 			dependencies = (
 			);
-			name = ClaudeUsage;
-			productName = ClaudeUsage;
-			productReference = A1000009 /* ClaudeUsage.app */;
+			name = PulseCheck;
+			productName = PulseCheck;
+			productReference = A1000009 /* PulseCheck.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -160,7 +160,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1000040 /* Build configuration list for PBXProject "ClaudeUsage" */;
+			buildConfigurationList = A1000040 /* Build configuration list for PBXProject "PulseCheck" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -173,7 +173,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1000099 /* ClaudeUsage */,
+				A1000099 /* PulseCheck */,
 			);
 		};
 /* End PBXProject section */
@@ -194,7 +194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000001 /* ClaudeUsageApp.swift in Sources */,
+				A1000001 /* PulseCheckApp.swift in Sources */,
 				A1000002 /* AppDelegate.swift in Sources */,
 				A1000003 /* StatusBarController.swift in Sources */,
 				A1000060 /* AppError.swift in Sources */,
@@ -332,20 +332,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_ENTITLEMENTS = ClaudeUsage/Resources/ClaudeUsage.entitlements;
+				CODE_SIGN_ENTITLEMENTS = PulseCheck/Resources/PulseCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ClaudeUsage/Resources/Info.plist;
+				INFOPLIST_FILE = PulseCheck/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.ClaudeUsage";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -358,20 +358,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_ENTITLEMENTS = ClaudeUsage/Resources/ClaudeUsage.entitlements;
+				CODE_SIGN_ENTITLEMENTS = PulseCheck/Resources/PulseCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ClaudeUsage/Resources/Info.plist;
+				INFOPLIST_FILE = PulseCheck/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.ClaudeUsage";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -382,7 +382,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000040 /* Build configuration list for PBXProject "ClaudeUsage" */ = {
+		A1000040 /* Build configuration list for PBXProject "PulseCheck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000041 /* Debug */,
@@ -391,7 +391,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1000050 /* Build configuration list for PBXNativeTarget "ClaudeUsage" */ = {
+		A1000050 /* Build configuration list for PBXNativeTarget "PulseCheck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000051 /* Debug */,

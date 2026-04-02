@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import OSLog
 
-private let logger = Logger(subsystem: "com.jo.ClaudeUsage", category: "UsageStore")
+private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "UsageStore")
 
 @Observable
 @MainActor
@@ -18,6 +18,7 @@ class UsageStore {
     private let credentialsService = CredentialsService()
     private let apiClient = AnthropicAPIClient()
     private var pollingTask: Task<Void, Never>?
+    private var backoffSeconds: Int = 60
     var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
@@ -26,7 +27,6 @@ class UsageStore {
         case .success(let creds):
             self.credentials = creds
             self.credentialError = nil
-            // Keep —% until API call in Plan 03 provides real data
             // If token is already expired, surface that in title
             if creds.isExpired {
                 self.menuBarTitle = "Auth expired"
@@ -44,10 +44,10 @@ class UsageStore {
         pollingTask?.cancel()
         pollingTask = Task { @MainActor in
             while !Task.isCancelled {
-                logger.debug("Polling: fetching usage")
+                logger.debug("Polling: fetching usage (interval: \(self.backoffSeconds)s)")
                 await fetchUsage()
                 do {
-                    try await Task.sleep(for: .seconds(60))
+                    try await Task.sleep(for: .seconds(backoffSeconds))
                 } catch {
                     break  // Task cancelled during sleep
                 }
@@ -70,6 +70,7 @@ class UsageStore {
         case .success(let response):
             self.usageResponse = response
             self.usageError = nil
+            self.backoffSeconds = 60  // Reset to normal interval
             // Use five_hour utilization as primary display value
             if let fiveHour = response.fiveHour {
                 self.menuBarTitle = fiveHour.displayString  // e.g. "51%"
@@ -79,13 +80,20 @@ class UsageStore {
                 self.menuBarTitle = "—%"
             }
         case .failure(let error):
-            self.usageResponse = nil
             self.usageError = error
             switch error {
             case .apiUnauthorized:
+                self.usageResponse = nil
                 self.menuBarTitle = "Auth expired"
+                self.backoffSeconds = 60
+            case .apiError(429, _):
+                // Rate limited — keep last good data, back off
+                self.backoffSeconds = min(backoffSeconds * 2, 600)  // Max 10 min
+                logger.warning("Rate limited (429) — backing off to \(self.backoffSeconds)s")
             default:
+                self.usageResponse = nil
                 self.menuBarTitle = "—"
+                self.backoffSeconds = 60
             }
             logger.error("API call failed: \(error.localizedDescription)")
         }

@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
 
-private let logger = Logger(subsystem: "com.jo.ClaudeUsage", category: "CredentialsService")
+private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "CredentialsService")
 
 struct CredentialsService {
     private let keychain = KeychainService()
