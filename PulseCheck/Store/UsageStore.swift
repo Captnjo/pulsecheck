@@ -28,6 +28,8 @@ class UsageStore {
             if creds.isExpired {
                 self.credentials = nil
                 self.credentialError = .apiUnauthorized
+                self.usageResponse = nil
+                self.usageError = .apiUnauthorized
                 self.menuBarTitle = "Auth expired"
                 logger.warning("Loaded token is already expired")
             } else {

@@ -1,10 +1,11 @@
-# Stack Research
+# Technology Stack
 
-**Domain:** macOS menu bar utility app (polling API, displaying usage data)
-**Researched:** 2026-04-02
-**Confidence:** MEDIUM-HIGH (core stack HIGH, API contract details MEDIUM due to undocumented endpoint)
+**Project:** PulseCheck (Claude Mac Widget)
+**Researched:** 2026-04-02 (v1.0 base) + 2026-04-02 (v2.0 delta)
 
-## Recommended Stack
+---
+
+## v1.0 Base Stack (validated, do not re-research)
 
 ### Core Technologies
 
@@ -92,7 +93,7 @@ Do not target macOS 12 or lower: `MenuBarExtra` does not exist, and you would fa
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
 | SwiftUI `MenuBarExtra` (.window style) | AppKit `NSStatusItem` + `NSMenu` | Only if targeting macOS 12 or earlier, or needing pixel-perfect control over menu item layout that SwiftUI can't provide |
-| First-party Keychain (Security framework) | KeychainAccess (kishikawakatsumi) | If you need to read/write multiple Keychain items across many services; for a single token, the wrapper adds more complexity than it saves |
+| First-party Keychain (Security framework) | KeychainAccess (kishikawakatsuki) | If you need to read/write multiple Keychain items across many services; for a single token, the wrapper adds more complexity than it saves |
 | `Task.sleep` polling loop | `Timer` (RunLoop-based) | Legacy `Timer` requires RunLoop management; use `Timer` only in AppKit/UIKit contexts |
 | Manual JSON `Codable` structs | `Alamofire` / `Apollo` | Never add a full networking library for a single endpoint poll — URLSession + Codable is 20 lines |
 | Swift / Xcode project | Electron / Tauri / web wrapper | Cross-platform is irrelevant here; native macOS provides Keychain access, proper menu bar integration, and lower resource use |
@@ -135,18 +136,247 @@ Do not target macOS 12 or lower: `MenuBarExtra` does not exist, and you would fa
 | `Security` Keychain API | macOS 10.9+ | Fully stable; no version concerns |
 | `/api/oauth/usage` endpoint | Undated | Unofficial; track Claude Code GitHub issues for breakage |
 
-## Sources
+---
 
-- https://sarunw.com/posts/swiftui-menu-bar-app/ — MenuBarExtra scene API patterns (MEDIUM confidence — 2022 article, API confirmed stable to 2025)
-- https://nilcoalescing.com/blog/BuildAMacOSMenuBarUtilityInSwiftUI/ — `.window` style, LSUIElement, Dock hiding (MEDIUM confidence)
-- https://steipete.me/posts/2025/showing-settings-from-macos-menu-bar-items — SettingsLink bug in MenuBarExtra (HIGH confidence — 2025 first-hand report)
-- https://github.com/anthropics/claude-code/issues/30930 — OAuth usage endpoint 429 bug, token structure, refresh flow (MEDIUM confidence — issue thread, not official docs)
-- https://github.com/apple/swift-async-algorithms — swift-async-algorithms 1.1.3 (March 2026), AsyncTimerSequence (HIGH confidence — official Apple repo)
-- https://developer.apple.com/documentation/security/storing-keys-in-the-keychain — Keychain API (HIGH confidence — official docs)
-- https://github.com/griffinmartin/opencode-claude-auth — Claude Code Keychain service name pattern, credentials JSON structure (MEDIUM confidence — third-party reverse engineering)
-- https://www.theregister.com/2026/03/31/anthropic_claude_code_limits/ — Claude Code quota issues context (LOW confidence for API details)
-- https://medium.com/better-programming/create-menu-bar-apps-for-macos-ventura-or-higher-4c05a5b28e31 — macOS 13 minimum confirmed for MenuBarExtra (MEDIUM confidence)
+## v2.0 Delta Stack Research
+
+**Scope:** Features for v2.0 milestone only. No new dependencies added — all capabilities are already in the SDK stack.
+
+**Overall verdict:** Zero new dependencies. Every v2.0 feature is implementable with AppKit, Foundation, Security framework, and SwiftUI — all already imported in the project.
+
+### Feature 1: Color-coded NSStatusItem Text
+
+**Mechanism:** `NSAttributedString` with `NSAttributedString.Key.foregroundColor` assigned to `statusItem.button?.attributedTitle`.
+
+**Current code:** `StatusBarController.updateTitle(_:)` sets `statusItem.button?.title` (plain String). Swap to `attributedTitle`.
+
+**Color values:**
+```swift
+// Use system semantic colors — they adapt to accessibility settings
+NSColor.systemGreen   // < warning threshold
+NSColor.systemYellow  // warning zone
+NSColor.systemRed     // critical zone
+```
+
+**Known pitfall — highlight inversion:** When the popover is open, macOS draws the status button with a highlighted (dark) background. A hardcoded colored `NSAttributedString` does not invert automatically and may become hard to read. The practical mitigation for v2.0: this condition is transient (popover is open, text briefly hard to see), acceptable for a personal tool. If color legibility during highlight must be guaranteed, add a KVO observer on `statusItem.button?.isHighlighted` and swap the attributed string to `NSColor.selectedMenuItemTextColor` when highlighted.
+
+**Font matching system menu bar:**
+```swift
+NSFont.menuBarFont(ofSize: 0)  // 0 = system-default menu bar size
+```
+
+**No new imports required.** `AppKit` already imported in `StatusBarController.swift`.
+
+**Confidence:** HIGH
+
+### Feature 2: Adaptive Template Icon (light/dark mode)
+
+**Mechanism:** Set `isTemplate = true` on the `NSImage` used for `statusItem.button?.image`. macOS automatically renders the icon as dark gray in light mode, white in dark mode, and white when highlighted. This is the system-standard behavior for all built-in menu bar icons.
+
+**Simplest implementation — asset catalog change only:**
+
+Open `PulseCheckIcon` in the Xcode asset catalog. Set **Render As → Template Image**. Done. No code change needed.
+
+Belt-and-suspenders in code (for robustness):
+```swift
+if let img = NSImage(named: "PulseCheckIcon") {
+    img.isTemplate = true
+    button.image = img
+}
+```
+
+**Alternative — SF Symbol (zero asset dependency):**
+```swift
+button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "PulseCheck")
+// SF Symbols are always template by default
+```
+
+**Interaction with colored text:** Template image and colored `attributedTitle` coexist on the same button without conflict. The image adapts independently of the title color.
+
+**Confidence:** HIGH
+
+### Feature 3: Configurable Warning Thresholds
+
+**Mechanism:** `@AppStorage` property wrapper backed by `UserDefaults`. Thresholds are `Double` values (0.0–1.0); `AppStorage` serializes these natively.
+
+**Correct storage for thresholds:** UserDefaults (not Keychain). Thresholds are not sensitive — plain preferences.
+
+**Recommended pattern:**
+```swift
+// Declare in any SwiftUI view or @Observable class:
+@AppStorage("warningThreshold") var warningThreshold: Double = 0.75
+@AppStorage("criticalThreshold") var criticalThreshold: Double = 0.90
+```
+
+**Where to place the settings UI:** The `SettingsLink` API is unreliable inside NSPopover contexts (documented Apple bug, confirmed 2025). For v2.0, embed threshold sliders directly in `UsagePanelView` (collapsible section or dedicated Settings tab). This avoids the settings window complexity entirely.
+
+**No new imports required.** SwiftUI already imported.
+
+**Confidence:** HIGH
+
+### Feature 4: OAuth Token Refresh
+
+**Mechanism:** POST to the Anthropic OAuth token endpoint. Use a Swift `actor` to serialize concurrent refresh calls (prevents duplicate refresh race conditions).
+
+**Verified endpoint details** (MEDIUM confidence — third-party reverse-engineering from opencode project; client_id matches CLAUDE.md v1.0 validated research):
+
+| Parameter | Value |
+|-----------|-------|
+| URL | `https://console.anthropic.com/v1/oauth/token` |
+| Method | POST |
+| Content-Type | `application/json` |
+| `grant_type` | `"refresh_token"` |
+| `refresh_token` | Value from `ClaudeOAuthCredentials.refreshToken` |
+| `client_id` | `"9d1c250a-e61b-44d9-88ed-5944d1962f5e"` |
+
+**Response fields:** `access_token`, `refresh_token` (rotates — MUST save), `expires_in` (seconds, relative), `token_type: "Bearer"`.
+
+**CRITICAL:** Refresh tokens rotate. After success, immediately write both new `accessToken` and `refreshToken` to Keychain.
+
+**Actor pattern (prevents duplicate refresh under concurrent callers):**
+```swift
+actor TokenRefreshActor {
+    private var inflightTask: Task<ClaudeOAuthCredentials, Error>?
+
+    func refresh(using credentials: ClaudeOAuthCredentials) async throws -> ClaudeOAuthCredentials {
+        if let task = inflightTask {
+            return try await task.value  // coalesce callers onto the same refresh
+        }
+        let task = Task<ClaudeOAuthCredentials, Error> {
+            defer { self.inflightTask = nil }
+            return try await TokenRefreshService().refresh(refreshToken: credentials.refreshToken)
+        }
+        inflightTask = task
+        return try await task.value
+    }
+}
+```
+
+**Keychain write-back:** `KeychainService` currently only reads. Add `writeClaudeCredentials(_:)` using `SecItemUpdate` (item already exists from Claude Code's login). The query must match by `kSecAttrService: "Claude Code-credentials"`.
+
+**Integration point:** In `UsageStore.fetchUsage()`, on `.failure(.apiUnauthorized)`, call the refresh actor before giving up, then retry the fetch once. Also check `credentials.isExpired` proactively at the start of each poll cycle.
+
+**App Sandbox:** No entitlement changes needed. The existing `network.client` entitlement covers outbound to `console.anthropic.com`.
+
+**New files needed:**
+- `Services/TokenRefreshService.swift` — URLSession POST, ~40 lines
+- `Services/TokenRefreshActor.swift` — actor wrapper, ~20 lines
+
+`KeychainService.swift` needs a write method added (not a new file).
+
+**Confidence:** MEDIUM (endpoint URL and client_id from third-party sources; functional architecture from well-established Swift async patterns)
+
+### Feature 5: Last-Updated Timestamp
+
+**Mechanism:** Add `var lastFetchedAt: Date?` to `UsageStore`. Set on successful fetch. Display in `UsagePanelView` using SwiftUI's `Text(_:style:)` with `.relative` style.
+
+```swift
+// In UsageStore.fetchUsage(), on .success:
+self.lastFetchedAt = Date()
+
+// In UsagePanelView:
+if let date = store.lastFetchedAt {
+    Text(date, style: .relative)  // Renders: "2 minutes ago", auto-refreshes
+}
+```
+
+`Text(_:style: .relative)` auto-refreshes its display as time passes with no timer or polling overhead — the SwiftUI runtime handles it.
+
+**No new imports required.**
+
+**Confidence:** HIGH
+
+### Feature 6: Manual Refresh Button
+
+**Mechanism:** A `Button` in `UsagePanelView` calling `store.fetchUsage()`. Add `var isRefreshing: Bool` to `UsageStore` to prevent button spam.
+
+```swift
+// In UsageStore:
+var isRefreshing: Bool = false
+
+func fetchUsage() async {
+    isRefreshing = true
+    defer { isRefreshing = false }
+    // ... existing fetch logic
+}
+
+// In UsagePanelView:
+Button {
+    Task { await store.fetchUsage() }
+} label: {
+    Label("Refresh", systemImage: "arrow.clockwise")
+}
+.disabled(store.isRefreshing)
+```
+
+The `defer { isRefreshing = false }` pattern ensures the flag resets even if the fetch throws or returns early.
+
+**No new imports required.**
+
+**Confidence:** HIGH
 
 ---
-*Stack research for: macOS menu bar app displaying Claude Code usage*
-*Researched: 2026-04-02*
+
+## v2.0 New Files Summary
+
+| File | Purpose | Lines (est.) |
+|------|---------|-------------|
+| `Services/TokenRefreshService.swift` | URLSession POST to Anthropic OAuth refresh endpoint | ~45 |
+| `Services/TokenRefreshActor.swift` | Actor serializing concurrent refresh calls | ~25 |
+
+Files modified (not new): `StatusBarController.swift`, `KeychainService.swift`, `UsageStore.swift`, `UsagePanelView` (and related), `PulseCheckIcon` asset.
+
+---
+
+## v2.0 What NOT to Add
+
+| Library | Why Not |
+|---------|---------|
+| `KeychainAccess` (kishikawakatsuki) | `SecItemUpdate` for a single item is ~15 lines; a wrapper adds a dependency for no gain |
+| `Alamofire` or any HTTP library | URLSession async/await handles one new POST cleanly |
+| `Combine` | `@Observable` + `@AppStorage` + `Text(.., style: .relative)` cover all reactivity needs |
+| `swift-async-algorithms` | Still not needed; `Task.sleep` polling loop is sufficient |
+| Any OAuth library (`p2/OAuth2`, etc.) | The refresh is a single POST — a full OAuth library is massively over-engineered |
+
+---
+
+## Confidence Assessment
+
+| Area | Level | Reason |
+|------|-------|--------|
+| NSAttributedString colored title | HIGH | Standard AppKit API, widely documented and used |
+| Template icon (`isTemplate = true`) | HIGH | Official Apple HIG recommendation, unchanged since macOS 10.10 |
+| `@AppStorage` for thresholds | HIGH | Official SwiftUI docs, macOS 12+ |
+| OAuth refresh endpoint | MEDIUM | URL and client_id from third-party opencode project reverse engineering; client_id matches CLAUDE.md v1.0 research |
+| Keychain write-back (`SecItemUpdate`) | HIGH | Stable Security framework API, well-documented |
+| Swift actor for refresh serialization | HIGH | Official Swift concurrency pattern, verified in Donny Wals article |
+| `Text(.., style: .relative)` | HIGH | Official SwiftUI API, macOS 12+ |
+| Manual refresh / `isRefreshing` flag | HIGH | Standard SwiftUI boolean gate pattern |
+
+---
+
+## Sources
+
+**v1.0 sources (from original research):**
+- https://sarunw.com/posts/swiftui-menu-bar-app/ — MenuBarExtra scene API patterns (MEDIUM — 2022, API confirmed stable to 2025)
+- https://nilcoalescing.com/blog/BuildAMacOSMenuBarUtilityInSwiftUI/ — `.window` style, LSUIElement, Dock hiding (MEDIUM)
+- https://steipete.me/posts/2025/showing-settings-from-macos-menu-bar-items — SettingsLink bug in MenuBarExtra (HIGH — 2025)
+- https://github.com/anthropics/claude-code/issues/30930 — OAuth usage endpoint 429 bug, token structure, refresh flow (MEDIUM)
+- https://github.com/apple/swift-async-algorithms — swift-async-algorithms 1.1.3 (March 2026), AsyncTimerSequence (HIGH)
+- https://developer.apple.com/documentation/security/storing-keys-in-the-keychain — Keychain API (HIGH)
+- https://github.com/griffinmartin/opencode-claude-auth — Claude Code Keychain service name pattern, credentials JSON structure (MEDIUM)
+- https://www.theregister.com/2026/03/31/anthropic_claude_code_limits/ — Claude Code quota issues context (LOW for API details)
+- https://medium.com/better-programming/create-menu-bar-apps-for-macos-ventura-or-higher-4c05a5b28e31 — macOS 13 minimum confirmed for MenuBarExtra (MEDIUM)
+
+**v2.0 sources:**
+- https://developer.apple.com/documentation/appkit/nsstatusitem/attributedtitle — `attributedTitle` API reference (HIGH)
+- https://developer.apple.com/documentation/appkit/nsstatusitem — button image, isTemplate (HIGH)
+- https://multi.app/blog/pushing-the-limits-nsstatusitem — real-world NSStatusItem colored title patterns (MEDIUM)
+- https://developer.apple.com/documentation/swiftui/appstorage — AppStorage persistence wrapper (HIGH)
+- https://deepwiki.com/anomalyco/opencode-anthropic-auth/3.3-token-lifecycle-management — refresh endpoint URL, fields, client_id (MEDIUM)
+- https://www.donnywals.com/building-a-token-refresh-flow-with-async-await-and-swift-concurrency/ — Swift actor pattern for concurrent refresh serialization (HIGH)
+- https://indiestack.com/2018/10/supporting-dark-mode-adapting-images/ — isTemplate image behavior (MEDIUM — 2018, API unchanged)
+- https://www.jessesquires.com/blog/2019/08/16/workaround-highlight-bug-nsstatusitem/ — highlight state behavior (MEDIUM — 2019, behavior unchanged)
+
+---
+*v1.0 researched: 2026-04-02 | v2.0 delta researched: 2026-04-02*
