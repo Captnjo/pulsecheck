@@ -42,10 +42,13 @@ Plans:
 **Depends on**: Phase 1
 **Requirements**: POLL-01, POLL-02, DISP-01
 **Success Criteria** (what must be TRUE):
-  1. Menu bar displays the current usage percentage (e.g., "42%") updated from live API data
+  1. Menu bar displays the current usage percentage (e.g. "42%") updated from live API data
   2. Usage percentage refreshes every 60 seconds without any user action
   3. Menu bar shows "—" when the API is unreachable or returns an error, and the app does not crash
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Polling loop in UsageStore (startPolling/stopPolling), AppDelegate lifecycle wiring, "—" error display
 
 ### Phase 3: Dropdown Panel
 **Goal**: Users can open the dropdown and see full daily/weekly usage detail with reset timing and error context
@@ -75,7 +78,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress|  |
-| 2. Live Data | 0/TBD | Not started | - |
+| 1. Foundation | 3/3 | Complete |  |
+| 2. Live Data | 0/1 | In Progress | - |
 | 3. Dropdown Panel | 0/TBD | Not started | - |
 | 4. Launch Readiness | 0/TBD | Not started | - |
