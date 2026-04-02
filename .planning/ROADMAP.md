@@ -59,8 +59,10 @@ Plans:
   2. Dropdown panel shows weekly usage and weekly limit with a visible progress bar
   3. Dropdown panel shows time remaining until the usage limit resets
   4. Dropdown panel shows a clear error state when the app is offline or authentication has failed
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md — UsagePanelView (SwiftUI daily/weekly meters, reset countdowns, error state, Quit button) wired into NSPopover via NSHostingController
 
 ### Phase 4: Launch Readiness
 **Goal**: The app behaves correctly as a permanent background utility — starts on login, exits cleanly
@@ -80,5 +82,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete |  |
 | 2. Live Data | 0/1 | In Progress | - |
-| 3. Dropdown Panel | 0/TBD | Not started | - |
+| 3. Dropdown Panel | 0/1 | Not started | - |
 | 4. Launch Readiness | 0/TBD | Not started | - |
