@@ -54,7 +54,9 @@ Plans:
   3. Panel has a Refresh button that triggers an immediate API fetch when tapped
   4. Tapping Refresh while a fetch is already in progress does not trigger a second concurrent request
   5. After a manual refresh completes, the 60-second polling countdown restarts from zero
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [x] 06-01-PLAN.md — Add last-updated timestamp and manual refresh button to dropdown panel
 **UI hint**: yes
 
 ### Phase 7: Auth Resilience
@@ -77,5 +79,5 @@ Plans:
 | 3. Dropdown Panel | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 4. Launch Readiness | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 5. Visual Polish | v1.1 | 0/1 | Not started | - |
-| 6. UX Improvements | v1.1 | 0/? | Not started | - |
+| 6. UX Improvements | v1.1 | 0/1 | Not started | - |
 | 7. Auth Resilience | v1.1 | 0/? | Not started | - |

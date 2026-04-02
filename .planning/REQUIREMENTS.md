@@ -12,8 +12,8 @@
 
 ### UX Improvements
 
-- [ ] **PANEL-10**: Panel shows "Last updated X minutes ago" relative timestamp that auto-refreshes
-- [ ] **PANEL-11**: Panel has a manual refresh button that triggers an immediate poll
+- [x] **PANEL-10**: Panel shows "Last updated X minutes ago" relative timestamp that auto-refreshes
+- [x] **PANEL-11**: Panel has a manual refresh button that triggers an immediate poll
 
 ### Auth Resilience
 
@@ -42,8 +42,8 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DISP-11 | Phase 5 | Complete |
-| PANEL-10 | Phase 6 | Pending |
-| PANEL-11 | Phase 6 | Pending |
+| PANEL-10 | Phase 6 | Complete |
+| PANEL-11 | Phase 6 | Complete |
 | AUTH-10 | Phase 7 | Pending |
 
 **Coverage:**
