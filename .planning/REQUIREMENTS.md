@@ -64,24 +64,24 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | - | Pending |
-| AUTH-02 | - | Pending |
-| DISP-01 | - | Pending |
-| PANEL-01 | - | Pending |
-| PANEL-02 | - | Pending |
-| PANEL-03 | - | Pending |
-| PANEL-04 | - | Pending |
-| POLL-01 | - | Pending |
-| POLL-02 | - | Pending |
-| LIFE-01 | - | Pending |
-| LIFE-02 | - | Pending |
-| LIFE-03 | - | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| LIFE-01 | Phase 1 | Pending |
+| LIFE-02 | Phase 1 | Pending |
+| POLL-01 | Phase 2 | Pending |
+| POLL-02 | Phase 2 | Pending |
+| DISP-01 | Phase 2 | Pending |
+| PANEL-01 | Phase 3 | Pending |
+| PANEL-02 | Phase 3 | Pending |
+| PANEL-03 | Phase 3 | Pending |
+| PANEL-04 | Phase 3 | Pending |
+| LIFE-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after initial definition*
+*Last updated: 2026-04-02 after roadmap creation*
