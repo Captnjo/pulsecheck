@@ -15,6 +15,7 @@ class UsageStore {
 
     private let credentialsService = CredentialsService()
     private let apiClient = AnthropicAPIClient()
+    private var pollingTask: Task<Void, Never>?
 
     func loadCredentials() async {
         let result = await credentialsService.loadCredentials()
@@ -34,6 +35,26 @@ class UsageStore {
             self.menuBarTitle = "No credentials"
             logger.error("No credentials available from Keychain or file")
         }
+    }
+
+    func startPolling() {
+        pollingTask?.cancel()
+        pollingTask = Task { @MainActor in
+            while !Task.isCancelled {
+                logger.debug("Polling: fetching usage")
+                await fetchUsage()
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    break  // Task cancelled during sleep
+                }
+            }
+        }
+    }
+
+    func stopPolling() {
+        pollingTask?.cancel()
+        pollingTask = nil
     }
 
     func fetchUsage() async {
@@ -61,7 +82,7 @@ class UsageStore {
             case .apiUnauthorized:
                 self.menuBarTitle = "Auth expired"
             default:
-                self.menuBarTitle = "API unavailable"
+                self.menuBarTitle = "—"
             }
             logger.error("API call failed: \(error.localizedDescription)")
         }
