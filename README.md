@@ -1,8 +1,10 @@
 # PulseCheck
 
+> macOS menu bar utility for monitoring Claude Code API usage limits in real time
+
 **Claude Code doesn't surface your usage limits in the UI — PulseCheck fixes that.**
 
-A macOS menu bar app that shows your Claude Code usage at a glance. Displays your current usage percentage in the menu bar with a dropdown panel showing daily and weekly limits, progress bars, and reset times.
+A native macOS menu bar app that displays your Claude Code usage percentage at a glance. Click the icon to see daily (5-hour) and weekly (7-day) usage with progress bars, reset countdowns, and a manual refresh button. Automatically refreshes expired OAuth tokens so it keeps working unattended.
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
 ![Swift 6.1](https://img.shields.io/badge/Swift-6.1-orange)
@@ -10,20 +12,29 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 
 <img src="screenshot.png" alt="PulseCheck screenshot showing 57% daily usage, 12% weekly usage, reset countdowns, and Launch at Login toggle in the menu bar dropdown" width="360">
 
-> Menu bar shows your current usage percentage. Click to see daily (5-hour) and weekly (7-day) usage with progress bars, reset countdowns, and a Launch at Login toggle.
-
 ## Features
 
-- Usage percentage in the menu bar with adaptive icon (auto-tints for light/dark mode)
-- Daily (5-hour window) and weekly (7-day window) usage with progress bars
-- Reset countdown for daily, date/time for weekly
-- Last-updated timestamp showing when data was last fetched
-- Manual refresh button to fetch usage on demand
-- Polls every 60 seconds with automatic backoff on rate limits
-- Automatic OAuth token refresh — keeps working beyond the ~8-hour token lifetime
-- Launch at Login toggle
-- Quick-launch button to open the Claude desktop app
-- Zero configuration — reads your existing Claude Code OAuth token from the macOS Keychain
+- **Live usage percentage** in the menu bar with adaptive icon (auto-tints for light/dark mode)
+- **Daily (5-hour) and weekly (7-day)** usage meters with progress bars
+- **Reset countdown** for daily limit, date/time for weekly limit
+- **Last-updated timestamp** showing when data was last fetched
+- **Manual refresh button** to fetch usage on demand
+- **60-second polling** with automatic exponential backoff on rate limits (429)
+- **Automatic OAuth token refresh** — keeps working beyond the ~8-hour access token lifetime without user intervention
+- **Launch at Login** toggle via SMAppService
+- **Quick-launch button** to open the Claude desktop app
+- **Zero configuration** — reads your existing Claude Code OAuth token from the macOS Keychain
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Language | Swift 6.1 (strict concurrency) |
+| UI | SwiftUI + AppKit (NSStatusItem + NSPopover) |
+| Networking | URLSession async/await |
+| Auth | macOS Keychain (Security framework) |
+| Polling | Structured concurrency (Task.sleep) |
+| Min target | macOS 14.0 (Sonoma) |
 
 ## Install
 
@@ -73,11 +84,29 @@ To produce a DMG with drag-to-install: `./scripts/build-dmg.sh`
 
 ## How it works
 
-The app reads your Claude Code OAuth credentials from the macOS Keychain (service: `Claude Code-credentials`), then polls the `/api/oauth/usage` endpoint every 60 seconds. No API key setup is needed — it piggybacks on your existing Claude Code login.
+PulseCheck reads Claude Code's OAuth credentials from the macOS Keychain (service: `Claude Code-credentials`) and polls the `/api/oauth/usage` endpoint every 60 seconds. No API key or manual setup is needed — it piggybacks on your existing Claude Code login.
 
-When your access token expires (~8 hours), the app silently refreshes it using the OAuth refresh token and stores the new credentials in its own Keychain item (`PulseCheck-claude-credentials`) — your Claude Code credentials are never modified.
+When the access token expires (~8 hours), PulseCheck silently refreshes it using the OAuth `refresh_token` grant and stores the new credentials in its own Keychain item (`PulseCheck-claude-credentials`). Your original Claude Code credentials are never modified.
 
 If you see "No credentials", run `claude auth login` in your terminal.
+
+## Architecture
+
+```
+AppDelegate
+ ├── StatusBarController (NSStatusItem + NSPopover)
+ │    └── UsagePanelView (SwiftUI)
+ └── UsageStore (@Observable, @MainActor)
+      ├── CredentialsService (shadow-first Keychain read)
+      │    └── KeychainService (read/write/delete shadow + read-only Claude Code)
+      ├── AnthropicAPIClient (usage fetch + 403 scope-loss detection)
+      └── TokenRefreshService (actor, Task-based dedup)
+```
+
+- **UsageStore** owns the polling loop and coordinates credential loading, API calls, and token refresh
+- **CredentialsService** reads PulseCheck's shadow Keychain first, falls back to Claude Code's Keychain, and detects re-authentication (refreshToken mismatch)
+- **TokenRefreshService** is a Swift actor that deduplicates concurrent refresh requests via a stored `Task` handle
+- **AnthropicAPIClient** detects 403 scope-loss (Anthropic server bug) and routes to the auth recovery path
 
 ## License
 
