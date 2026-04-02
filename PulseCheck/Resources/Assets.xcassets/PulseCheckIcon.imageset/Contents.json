@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "ClaudeIcon.png",
+      "filename" : "PulseCheckIcon.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "ClaudeIcon@2x.png",
+      "filename" : "PulseCheckIcon@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     }

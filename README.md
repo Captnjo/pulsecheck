@@ -6,6 +6,8 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 ![Swift 6.1](https://img.shields.io/badge/Swift-6.1-orange)
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green)
 
+<img src="screenshot.png" alt="PulseCheck screenshot" width="360">
+
 ## Features
 
 - Usage percentage in the menu bar with Claude icon
@@ -37,7 +39,7 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
    - Go to **System Settings > Privacy & Security**
    - Scroll down to the security section — you'll see "PulseCheck was blocked"
    - Click **Open Anyway** and confirm
-6. The Claude sparkle icon and your usage percentage will appear in the menu bar
+6. The PulseCheck icon and your usage percentage will appear in the menu bar
 
 ### Build from source
 

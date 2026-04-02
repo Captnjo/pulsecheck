@@ -40,6 +40,7 @@ struct UsagePanelView: View {
             }
             ProgressView(value: period != nil ? period!.utilization / 100.0 : 0.0)
                 .progressViewStyle(.linear)
+                .tint(Color(red: 0.83, green: 0.65, blue: 0.45))
             if let period = period {
                 Text(showDate ? resetDateString(from: period.resetsAt) : resetCountdown(from: period.resetsAt))
                     .font(.caption)
