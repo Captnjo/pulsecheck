@@ -8,6 +8,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         statusBarController = StatusBarController()
+        usageStore.onTitleChanged = { [weak self] title in
+            self?.statusBarController.updateTitle(title)
+        }
         Task { @MainActor in
             await usageStore.loadCredentials()
             statusBarController.updateTitle(usageStore.menuBarTitle)
@@ -15,7 +18,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Only fetch if we have credentials
             if usageStore.credentials != nil {
                 await usageStore.fetchUsage()
-                statusBarController.updateTitle(usageStore.menuBarTitle)
             }
             usageStore.startPolling()
         }

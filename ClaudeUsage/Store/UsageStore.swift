@@ -9,13 +9,16 @@ private let logger = Logger(subsystem: "com.jo.ClaudeUsage", category: "UsageSto
 class UsageStore {
     var credentials: ClaudeOAuthCredentials?
     var credentialError: AppError?
-    var menuBarTitle: String = "—%"
+    var menuBarTitle: String = "—%" {
+        didSet { onTitleChanged?(menuBarTitle) }
+    }
     var usageResponse: UsageResponse?
     var usageError: AppError?
 
     private let credentialsService = CredentialsService()
     private let apiClient = AnthropicAPIClient()
     private var pollingTask: Task<Void, Never>?
+    var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
         let result = await credentialsService.loadCredentials()
