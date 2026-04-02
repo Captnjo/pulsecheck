@@ -54,7 +54,7 @@ completed: 2026-04-02
 - **Duration:** ~15 min
 - **Started:** 2026-04-02
 - **Completed:** 2026-04-02
-- **Tasks:** 2 auto + 1 checkpoint (checkpoint pending human verification)
+- **Tasks:** 2 auto + 1 checkpoint (approved — percentage matches /usage command)
 - **Files modified:** 5
 
 ## Accomplishments
@@ -86,15 +86,11 @@ completed: 2026-04-02
 
 None — plan executed exactly as written.
 
-## Checkpoint Pending
+## Checkpoint Result
 
-**Task 3 (checkpoint:human-verify)** requires running the app in Xcode and visually verifying:
-1. Menu bar updates from —% to a real percentage (e.g. "51%") after launch
-2. Console.app shows "API response status: 200" and raw JSON
-3. Percentage is reasonable (between 0% and 100%)
-4. App relaunches and shows percentage again (not stuck on —%)
-
-See CHECKPOINT REACHED message for full verification steps.
+**Task 3 (checkpoint:human-verify)** — APPROVED
+- User confirmed percentage shows up and matches /usage command output
+- Console.app verification skipped by user (not needed — percentage correctness confirmed)
 
 ## Known Stubs
 
