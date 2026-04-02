@@ -22,36 +22,35 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 - Quick-launch button to open the Claude desktop app
 - Zero configuration — reads your existing Claude Code OAuth token from the macOS Keychain
 
-## Requirements
-
-- macOS 14 (Sonoma) or later
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated (`claude auth login`)
-
 ## Install
 
-### Homebrew (recommended)
+Requires macOS 14 (Sonoma) or later. Pick one:
+
+---
+
+### Option A: Homebrew (recommended)
 
 ```bash
 brew install --cask captnjo/tap/pulsecheck
 ```
 
-### Download
+---
+
+### Option B: Download DMG
 
 **[Download PulseCheck-1.0.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.0/PulseCheck-1.0.dmg)**
 
-### Setup
-
-1. Make sure [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is installed and you've logged in (`claude auth login`)
-2. Open the downloaded DMG
-3. Drag **PulseCheck** into your **Applications** folder
-4. Launch PulseCheck from Applications
-5. macOS will warn the app is from an unidentified developer — click **Cancel**, then:
+1. Open the downloaded DMG
+2. Drag **PulseCheck** into your **Applications** folder
+3. Launch PulseCheck from Applications
+4. macOS will warn the app is from an unidentified developer — click **Cancel**, then:
    - Go to **System Settings > Privacy & Security**
    - Scroll down to the security section — you'll see "PulseCheck was blocked"
    - Click **Open Anyway** and confirm
-6. The PulseCheck icon and your usage percentage will appear in the menu bar
 
-### Build from source
+---
+
+### Option C: Build from source
 
 Requires Xcode 16.3+.
 
@@ -63,15 +62,11 @@ xcodebuild -project PulseCheck.xcodeproj -scheme PulseCheck -configuration Relea
 
 Or open `PulseCheck.xcodeproj` in Xcode and hit Cmd+R.
 
-### Build DMG
+To produce a DMG with drag-to-install: `./scripts/build-dmg.sh`
 
-A script is included to produce a DMG with drag-to-install:
+---
 
-```bash
-./scripts/build-dmg.sh
-```
-
-This archives the app and creates `PulseCheck-1.0.dmg` in the project root.
+**Prerequisites:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) must be installed and authenticated (`claude auth login`). The app reads your existing login — no separate API key needed.
 
 ## How it works
 
