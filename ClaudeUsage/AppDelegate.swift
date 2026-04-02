@@ -8,6 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         statusBarController = StatusBarController()
+        statusBarController.setStore(usageStore)
         usageStore.onTitleChanged = { [weak self] title in
             self?.statusBarController.updateTitle(title)
         }

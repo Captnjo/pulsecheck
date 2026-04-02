@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 @MainActor
 class StatusBarController: NSObject {
@@ -17,12 +18,17 @@ class StatusBarController: NSObject {
             button.target = self
             button.sendAction(on: [.leftMouseUp])
         }
-
-        statusItem.menu = buildMenu()
     }
 
     func updateTitle(_ text: String) {
         statusItem.button?.title = text
+    }
+
+    func setStore(_ store: UsageStore) {
+        let panelView = UsagePanelView(store: store)
+        let hosting = NSHostingController(rootView: panelView)
+        hosting.view.frame.size = CGSize(width: 280, height: hosting.sizeThatFits(in: CGSize(width: 280, height: 1000)).height)
+        popover.contentViewController = hosting
     }
 
     @objc private func togglePopover(_ sender: AnyObject?) {
@@ -33,16 +39,5 @@ class StatusBarController: NSObject {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
-    }
-
-    private func buildMenu() -> NSMenu {
-        let menu = NSMenu()
-        let quitItem = NSMenuItem(
-            title: "Quit ClaudeUsage",
-            action: #selector(NSApplication.terminate(_:)),
-            keyEquivalent: "q"
-        )
-        menu.addItem(quitItem)
-        return menu
     }
 }
