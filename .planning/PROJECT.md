@@ -12,17 +12,15 @@ Instant visibility into Claude Code usage limits without leaving the desktop.
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Secure API key storage (macOS Keychain) — Phase 1
+- ✓ Menu bar icon with usage percentage text — Phase 1 (single fetch on launch)
 
 ### Active
 
-- [ ] Menu bar icon with usage percentage text
 - [ ] Dropdown panel showing daily usage / daily limit
 - [ ] Dropdown panel showing weekly usage / weekly limit
 - [ ] Dropdown panel showing limit reset time (countdown or timestamp)
 - [ ] Polls Anthropic API every 60 seconds for usage data
-- [ ] Secure API key storage (macOS Keychain)
-- [ ] First-run setup flow to enter API key
 - [ ] Visual indicator when approaching limits (color change or warning)
 
 ### Out of Scope
@@ -74,4 +72,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after initialization*
+*Last updated: 2026-04-02 after Phase 1 completion*
