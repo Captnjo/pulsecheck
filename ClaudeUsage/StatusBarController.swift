@@ -1,13 +1,14 @@
 import AppKit
 
 @MainActor
-class StatusBarController {
+class StatusBarController: NSObject {
     private var statusItem: NSStatusItem
     private var popover: NSPopover
 
-    init() {
+    override init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         popover = NSPopover()
+        super.init()
         popover.behavior = .transient
 
         if let button = statusItem.button {
