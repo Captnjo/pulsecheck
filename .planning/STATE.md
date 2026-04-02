@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: "Completed 04-launch-readiness 04-01-PLAN.md Task 1 (checkpoint:human-verify pending for Task 2)"
 last_updated: "2026-04-02T00:10:00.000Z"
-last_activity: 2026-04-02 -- Quick task 260402-ob8: fixed REQUIREMENTS.md checkbox drift
+last_activity: 2026-04-02 -- Completed quick task 260402-ob8: Fix REQUIREMENTS.md checkbox drift
 progress:
   total_phases: 4
   completed_phases: 4
@@ -85,6 +85,12 @@ None yet.
 
 - Phase 1: Undocumented OAuth endpoint — verify exact URL, required headers, response shape, and 429 token-refresh behavior against a real Claude Code installation before writing API client code
 - Phase 1: OAuth client ID `9d1c250a-e61b-44d9-88ed-5944d1962f5e` is from third-party reverse engineering — confirm it produces valid refresh responses
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260402-ob8 | Fix REQUIREMENTS.md checkbox drift | 2026-04-02 | fcff078 | [260402-ob8-fix-requirements-md-checkbox-drift](./quick/260402-ob8-fix-requirements-md-checkbox-drift/) |
 
 ## Session Continuity
 
