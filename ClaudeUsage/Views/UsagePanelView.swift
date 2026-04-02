@@ -90,10 +90,19 @@ struct UsagePanelView: View {
 
     private func countdownString(to date: Date) -> String {
         let seconds = Int(date.timeIntervalSinceNow)
+        let timeStr = formatResetTime(date)
         guard seconds > 0 else { return "Resets soon" }
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
-        if hours > 0 { return "Resets in \(hours)h \(minutes)m" }
-        return "Resets in \(minutes)m"
+        if hours > 0 { return "Resets in \(hours)h \(minutes)m at \(timeStr)" }
+        return "Resets in \(minutes)m at \(timeStr)"
+    }
+
+    private func formatResetTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mma"
+        formatter.amSymbol = "am"
+        formatter.pmSymbol = "pm"
+        return formatter.string(from: date)
     }
 }
