@@ -25,12 +25,14 @@ class UsageStore {
         let result = await credentialsService.loadCredentials()
         switch result {
         case .success(let creds):
-            self.credentials = creds
-            self.credentialError = nil
-            // If token is already expired, surface that in title
             if creds.isExpired {
+                self.credentials = nil
+                self.credentialError = .apiUnauthorized
                 self.menuBarTitle = "Auth expired"
                 logger.warning("Loaded token is already expired")
+            } else {
+                self.credentials = creds
+                self.credentialError = nil
             }
         case .failure:
             self.credentials = nil
