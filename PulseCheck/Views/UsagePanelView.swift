@@ -24,6 +24,7 @@ struct UsagePanelView: View {
         usageSection(title: "Weekly (7-day window)", period: response.sevenDay, showDate: true)
         Divider()
         launchClaudeButton()
+        timestampAndRefreshRow()
         bottomRow()
     }
 
@@ -68,7 +69,44 @@ struct UsagePanelView: View {
         .padding(.vertical, 8)
         Divider()
         launchClaudeButton()
+        timestampAndRefreshRow()
         bottomRow()
+    }
+
+    @ViewBuilder
+    private func timestampAndRefreshRow() -> some View {
+        HStack {
+            TimelineView(.periodic(from: Date(), by: 60)) { _ in
+                Text(relativeTimestamp(for: store.lastFetchDate))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button {
+                Task { @MainActor in
+                    await store.fetchUsage()
+                    store.startPolling()
+                }
+            } label: {
+                Image(systemName: "arrow.clockwise")
+                    .rotationEffect(.degrees(store.isFetching ? 360 : 0))
+                    .animation(
+                        store.isFetching
+                            ? .linear(duration: 1).repeatForever(autoreverses: false)
+                            : .default,
+                        value: store.isFetching
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(store.isFetching)
+        }
+    }
+
+    private func relativeTimestamp(for date: Date?) -> String {
+        guard let date else { return "Not yet updated" }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return "Updated \(formatter.localizedString(for: date, relativeTo: Date()))"
     }
 
     @ViewBuilder
