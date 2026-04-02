@@ -62,27 +62,7 @@ class UsageStore {
         pollingTask = nil
     }
 
-    // TODO: Remove mock before release
-    private func mockUsage() {
-        let now = Date().addingTimeInterval(3 * 3600)
-        let weekReset = Date().addingTimeInterval(165 * 3600)
-        let fmt = ISO8601DateFormatter()
-        fmt.formatOptions = [.withInternetDateTime]
-        let response = UsageResponse(
-            fiveHour: UsagePeriod(utilization: 57, resetsAt: fmt.string(from: now)),
-            sevenDay: UsagePeriod(utilization: 12, resetsAt: fmt.string(from: weekReset)),
-            sevenDayOauthApps: nil, sevenDayOpus: nil, sevenDaySonnet: nil,
-            sevenDayCowork: nil, iguanaNecktie: nil, extraUsage: nil
-        )
-        self.usageResponse = response
-        self.usageError = nil
-        self.menuBarTitle = "57%"
-    }
-
     func fetchUsage() async {
-        // Uncomment next line to use mock data for screenshots:
-        // mockUsage(); return
-
         guard let creds = credentials else {
             logger.warning("fetchUsage called with no credentials — skipping")
             return
