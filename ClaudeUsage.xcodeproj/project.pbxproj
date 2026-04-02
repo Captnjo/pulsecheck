@@ -11,6 +11,10 @@
 		A1000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000011 /* AppDelegate.swift */; };
 		A1000003 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000012 /* StatusBarController.swift */; };
 		A1000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000021 /* Assets.xcassets */; };
+		A1000060 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000070 /* AppError.swift */; };
+		A1000061 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000071 /* KeychainService.swift */; };
+		A1000062 /* CredentialsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000072 /* CredentialsService.swift */; };
+		A1000063 /* UsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000073 /* UsageStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +25,10 @@
 		A1000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ClaudeUsage/Resources/Info.plist; sourceTree = "<group>"; };
 		A1000021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ClaudeUsage/Resources/Assets.xcassets; sourceTree = "<group>"; };
 		A1000022 /* ClaudeUsage.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ClaudeUsage.entitlements; path = ClaudeUsage/Resources/ClaudeUsage.entitlements; sourceTree = "<group>"; };
+		A1000070 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppError.swift; path = ClaudeUsage/Models/AppError.swift; sourceTree = "<group>"; };
+		A1000071 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainService.swift; path = ClaudeUsage/Services/KeychainService.swift; sourceTree = "<group>"; };
+		A1000072 /* CredentialsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CredentialsService.swift; path = ClaudeUsage/Services/CredentialsService.swift; sourceTree = "<group>"; };
+		A1000073 /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageStore.swift; path = ClaudeUsage/Store/UsageStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,10 +56,38 @@
 				A1000010 /* ClaudeUsageApp.swift */,
 				A1000011 /* AppDelegate.swift */,
 				A1000012 /* StatusBarController.swift */,
+				A1000032 /* Models */,
+				A1000033 /* Services */,
+				A1000034 /* Store */,
 				A1000030 /* Resources */,
 			);
 			name = ClaudeUsage;
 			path = "";
+			sourceTree = "<group>";
+		};
+		A1000032 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1000070 /* AppError.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		A1000033 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1000071 /* KeychainService.swift */,
+				A1000072 /* CredentialsService.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		A1000034 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				A1000073 /* UsageStore.swift */,
+			);
+			name = Store;
 			sourceTree = "<group>";
 		};
 		A1000030 /* Resources */ = {
@@ -144,6 +180,10 @@
 				A1000001 /* ClaudeUsageApp.swift in Sources */,
 				A1000002 /* AppDelegate.swift in Sources */,
 				A1000003 /* StatusBarController.swift in Sources */,
+				A1000060 /* AppError.swift in Sources */,
+				A1000061 /* KeychainService.swift in Sources */,
+				A1000062 /* CredentialsService.swift in Sources */,
+				A1000063 /* UsageStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
