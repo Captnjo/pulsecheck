@@ -4,11 +4,11 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "KeychainService")
 
-struct KeychainWrapper: Decodable {
+struct KeychainWrapper: Codable {
     let claudeAiOauth: ClaudeOAuthCredentials
 }
 
-struct ClaudeOAuthCredentials: Decodable {
+struct ClaudeOAuthCredentials: Codable {
     let accessToken: String
     let refreshToken: String
     let expiresAt: Int64        // milliseconds since epoch — divide by 1000 for Date

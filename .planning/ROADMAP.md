@@ -68,7 +68,10 @@ Plans:
   2. Refreshed tokens are stored in a PulseCheck-owned Keychain item and used for subsequent requests; Claude Code's Keychain item is never modified
   3. If two refresh attempts happen concurrently (polling loop + manual refresh), only one network request goes out and both callers receive the same result
   4. If token refresh fails, the app shows an auth error state rather than silently returning stale data
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Token refresh infrastructure (actor, shadow Keychain CRUD, 403 detection)
+- [ ] 07-02-PLAN.md — Wire refresh into credential loading and usage polling flows
 
 ## Progress
 
@@ -80,4 +83,4 @@ Plans:
 | 4. Launch Readiness | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 5. Visual Polish | v1.1 | 0/1 | Not started | - |
 | 6. UX Improvements | v1.1 | 0/1 | Not started | - |
-| 7. Auth Resilience | v1.1 | 0/? | Not started | - |
+| 7. Auth Resilience | v1.1 | 0/2 | Not started | - |
