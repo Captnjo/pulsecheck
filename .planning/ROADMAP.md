@@ -71,7 +71,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can toggle Launch at Login from within the app and the setting persists across reboots
   2. Quitting the app stops all background polling and the menu bar icon disappears cleanly
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Launch at Login toggle in UsagePanelView using SMAppService.mainApp, with human-verify checkpoint
 
 ## Progress
 
@@ -83,4 +86,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete |  |
 | 2. Live Data | 0/1 | In Progress | - |
 | 3. Dropdown Panel | 0/1 | Not started | - |
-| 4. Launch Readiness | 0/TBD | Not started | - |
+| 4. Launch Readiness | 0/1 | Not started | - |
