@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ServiceManagement
 
 struct UsagePanelView: View {
     var store: UsageStore
@@ -21,6 +22,8 @@ struct UsagePanelView: View {
         usageSection(title: "Daily (5h window)", period: response.fiveHour)
         Divider()
         usageSection(title: "Weekly (7-day window)", period: response.sevenDay)
+        Divider()
+        launchAtLoginToggle()
         Divider()
         quitButton()
     }
@@ -64,7 +67,28 @@ struct UsagePanelView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         Divider()
+        launchAtLoginToggle()
+        Divider()
         quitButton()
+    }
+
+    @ViewBuilder
+    private func launchAtLoginToggle() -> some View {
+        Toggle("Launch at Login", isOn: Binding(
+            get: { SMAppService.mainApp.status == .enabled },
+            set: { enable in
+                do {
+                    if enable {
+                        try SMAppService.mainApp.register()
+                    } else {
+                        try SMAppService.mainApp.unregister()
+                    }
+                } catch {
+                    // Silently ignore — user may have denied in System Settings
+                }
+            }
+        ))
+        .toggleStyle(.switch)
     }
 
     @ViewBuilder
