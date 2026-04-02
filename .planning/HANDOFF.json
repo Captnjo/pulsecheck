@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-04-02T08:48:04.892Z",
+  "phase": "04",
+  "phase_name": "launch-readiness",
+  "phase_dir": ".planning/phases/04-launch-readiness",
+  "plan": 1,
+  "task": 2,
+  "total_tasks": 2,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Add Launch at Login toggle to UsagePanelView", "status": "done", "commit": "c02f3dc"}
+  ],
+  "remaining_tasks": [
+    {"id": 2, "name": "Checkpoint: verify Launch at Login toggle works", "status": "awaiting_human", "progress": "Build passes, toggle visible in panel, needs user verification"}
+  ],
+  "blockers": [],
+  "human_actions_pending": [
+    {"action": "Verify Launch at Login toggle in running app — toggle ON, check System Settings > Login Items, toggle OFF", "context": "Phase 4 checkpoint — last step before project complete", "blocking": true}
+  ],
+  "decisions": [
+    {"decision": "NSStatusItem + NSPopover over MenuBarExtra", "rationale": "MenuBarExtra can't update button title dynamically", "phase": "01"},
+    {"decision": "Read Claude Code OAuth token from Keychain", "rationale": "Zero-config for existing Claude Code users", "phase": "01"},
+    {"decision": "Task.sleep polling loop", "rationale": "Structured concurrency with auto-cancellation", "phase": "02"},
+    {"decision": "onTitleChanged callback for menu bar updates", "rationale": "AppKit StatusBarController not reactive to @Observable", "phase": "02"},
+    {"decision": "Reset countdown with absolute time", "rationale": "User requested 'at HH:MMam/pm' after relative countdown", "phase": "03"},
+    {"decision": "SMAppService.mainApp for Launch at Login", "rationale": "macOS 13+ API, matches our macOS 14 minimum target", "phase": "04"}
+  ],
+  "uncommitted_files": [".planning/config.json"],
+  "next_action": "Run app, verify Launch at Login toggle, type 'approved', then finalize Phase 4 and run milestone lifecycle (audit → complete → cleanup)",
+  "context_notes": "Running /gsd:autonomous — Phases 1-3 complete, Phase 4 code done but awaiting checkpoint approval. After approval: finalize summary, verify phase, mark complete, then run milestone lifecycle. The app is fully functional — menu bar shows daily usage %, popover shows daily+weekly with progress bars and reset countdowns, polls every 60s."
+}
