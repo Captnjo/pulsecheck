@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SCHEME="PulseCheck"
 APP_NAME="PulseCheck"
-DMG_NAME="PulseCheck-1.0"
+DMG_NAME="PulseCheck-1.1"
 BUILD_DIR="$PROJECT_DIR/build"
 ARCHIVE_PATH="$BUILD_DIR/$SCHEME.xcarchive"
 DMG_STAGING="$BUILD_DIR/dmg-staging"

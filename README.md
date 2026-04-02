@@ -14,10 +14,13 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 
 ## Features
 
-- Usage percentage in the menu bar with Claude icon
+- Usage percentage in the menu bar with adaptive icon (auto-tints for light/dark mode)
 - Daily (5-hour window) and weekly (7-day window) usage with progress bars
 - Reset countdown for daily, date/time for weekly
+- Last-updated timestamp showing when data was last fetched
+- Manual refresh button to fetch usage on demand
 - Polls every 60 seconds with automatic backoff on rate limits
+- Automatic OAuth token refresh — keeps working beyond the ~8-hour token lifetime
 - Launch at Login toggle
 - Quick-launch button to open the Claude desktop app
 - Zero configuration — reads your existing Claude Code OAuth token from the macOS Keychain
@@ -38,7 +41,7 @@ brew install --cask captnjo/tap/pulsecheck
 
 ### Option B: Download DMG
 
-**[Download PulseCheck-1.0.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.0/PulseCheck-1.0.dmg)**
+**[Download PulseCheck-1.1.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.1/PulseCheck-1.1.dmg)**
 
 1. Open the downloaded DMG
 2. Drag **PulseCheck** into your **Applications** folder
@@ -71,6 +74,8 @@ To produce a DMG with drag-to-install: `./scripts/build-dmg.sh`
 ## How it works
 
 The app reads your Claude Code OAuth credentials from the macOS Keychain (service: `Claude Code-credentials`), then polls the `/api/oauth/usage` endpoint every 60 seconds. No API key setup is needed — it piggybacks on your existing Claude Code login.
+
+When your access token expires (~8 hours), the app silently refreshes it using the OAuth refresh token and stores the new credentials in its own Keychain item (`PulseCheck-claude-credentials`) — your Claude Code credentials are never modified.
 
 If you see "No credentials", run `claude auth login` in your terminal.
 
