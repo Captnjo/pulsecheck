@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Polish & Resilience
-status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-04-02T21:03:42.957Z"
+status: verifying
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-04-02T21:07:21.450Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 07 (auth-resilience) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-02
 
 Progress: [..........] 0%
@@ -44,6 +44,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 06-ux-improvements]: Used .borderless button style for refresh button in panel — .plain did not render correctly in menu bar panel context
 - [Phase 07-auth-resilience]: defer-refreshTask-nil-inside-task-closure: ensures concurrent callers receive result after property is cleared
 - [Phase 07-auth-resilience]: scope-preservation-in-toCredentials: OAuth refresh response omits scopes; carry forward from pre-refresh credentials
+- [Phase 07-auth-resilience]: expired-credentials-passed-not-rejected: CredentialsService returns expired shadow credentials so UsageStore 401 flow handles refresh
+- [Phase 07-auth-resilience]: shadow-delete-on-refresh-failure: clears shadow Keychain item on failed token refresh so next cycle re-reads from Claude Code Keychain
 
 ### Critical Architecture Notes
 
@@ -64,6 +66,6 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-04-02T21:03:42.955Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-04-02T21:07:21.448Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None

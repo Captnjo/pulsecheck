@@ -71,7 +71,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 07-01-PLAN.md — Token refresh infrastructure (actor, shadow Keychain CRUD, 403 detection)
-- [ ] 07-02-PLAN.md — Wire refresh into credential loading and usage polling flows
+- [x] 07-02-PLAN.md — Wire refresh into credential loading and usage polling flows
 
 ## Progress
 
