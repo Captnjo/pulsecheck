@@ -1,12 +1,16 @@
 # PulseCheck
 
+**Claude Code doesn't surface your usage limits in the UI — PulseCheck fixes that.**
+
 A macOS menu bar app that shows your Claude Code usage at a glance. Displays your current usage percentage in the menu bar with a dropdown panel showing daily and weekly limits, progress bars, and reset times.
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
 ![Swift 6.1](https://img.shields.io/badge/Swift-6.1-orange)
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green)
 
-<img src="screenshot.png" alt="PulseCheck screenshot" width="360">
+<img src="screenshot.png" alt="PulseCheck screenshot showing 57% daily usage, 12% weekly usage, reset countdowns, and Launch at Login toggle in the menu bar dropdown" width="360">
+
+> Menu bar shows your current usage percentage. Click to see daily (5-hour) and weekly (7-day) usage with progress bars, reset countdowns, and a Launch at Login toggle.
 
 ## Features
 
@@ -24,6 +28,12 @@ A macOS menu bar app that shows your Claude Code usage at a glance. Displays you
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated (`claude auth login`)
 
 ## Install
+
+### Homebrew (recommended)
+
+```bash
+brew install --cask captnjo/tap/pulsecheck
+```
 
 ### Download
 
@@ -72,3 +82,7 @@ If you see "No credentials", run `claude auth login` in your terminal.
 ## License
 
 [GPL v3](LICENSE) — free to use, modify, and distribute. Derivative works must also be open source under the same license.
+
+## Contributing
+
+Issues and PRs welcome. If you hit a bug or have a feature idea, [open an issue](https://github.com/Captnjo/pulsecheck/issues).
