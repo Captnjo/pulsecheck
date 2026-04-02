@@ -17,6 +17,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 await usageStore.fetchUsage()
                 statusBarController.updateTitle(usageStore.menuBarTitle)
             }
+            usageStore.startPolling()
         }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        usageStore.stopPolling()
     }
 }
