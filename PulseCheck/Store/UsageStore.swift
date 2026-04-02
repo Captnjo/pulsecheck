@@ -65,6 +65,10 @@ class UsageStore {
     }
 
     func fetchUsage() async {
+        // Re-read credentials if missing or expired — Claude Code may have refreshed them
+        if credentials == nil || (credentials?.isExpired ?? false) {
+            await loadCredentials()
+        }
         guard let creds = credentials else {
             logger.warning("fetchUsage called with no credentials — skipping")
             return
