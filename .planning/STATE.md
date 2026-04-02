@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Roadmap created, ready to plan Phase 1
-last_updated: "2026-04-02T05:31:58.585Z"
-last_activity: 2026-04-02 -- Phase 01 execution started
+stopped_at: Completed 01-foundation 01-02-PLAN.md
+last_updated: "2026-04-02T06:23:50.090Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 01 (Foundation) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 01
-Last activity: 2026-04-02 -- Phase 01 execution started
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-foundation P02 | 15 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - Research: Use NSStatusItem + NSPopover (not MenuBarExtra) — programmatic show/hide and title updates require it
 - Research: OAuth internal endpoint (`/api/oauth/usage`) is the only viable path for personal Pro/Max accounts; official analytics API is org-admin-only
 - Research: Keychain service name is `Claude Code-credentials`; verify on target machine before hardcoding
+- [Phase 01-foundation]: AppDelegate marked @MainActor for Swift 6 strict concurrency — required to initialize @MainActor UsageStore as stored property
+- [Phase 01-foundation]: kSecAttrAccount omitted from Keychain query — avoids hardcoding username, returns first item matching service name
+- [Phase 01-foundation]: expiresAt is milliseconds — divide by 1000.0 when constructing Date from Keychain token
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02
-Stopped at: Roadmap created, ready to plan Phase 1
+Last session: 2026-04-02T06:23:50.088Z
+Stopped at: Completed 01-foundation 01-02-PLAN.md
 Resume file: None

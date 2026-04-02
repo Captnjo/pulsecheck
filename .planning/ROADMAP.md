@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Xcode project scaffold: Info.plist (LSUIElement), entitlements, AppDelegate, StatusBarController with —% and Quit
-- [ ] 01-02-PLAN.md — Credential reading: KeychainService (claudeAiOauth wrapper), CredentialsService (file fallback), UsageStore (@Observable)
+- [x] 01-02-PLAN.md — Credential reading: KeychainService (claudeAiOauth wrapper), CredentialsService (file fallback), UsageStore (@Observable)
 - [ ] 01-03-PLAN.md — API verification: UsageResponse Codable models, AnthropicAPIClient, wire fetchUsage into UsageStore
 
 ### Phase 2: Live Data
@@ -75,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 2/3 | In Progress|  |
 | 2. Live Data | 0/TBD | Not started | - |
 | 3. Dropdown Panel | 0/TBD | Not started | - |
 | 4. Launch Readiness | 0/TBD | Not started | - |

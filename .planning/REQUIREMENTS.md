@@ -7,8 +7,8 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: App reads Claude Code OAuth token from macOS Keychain on launch
-- [ ] **AUTH-02**: App falls back to reading `~/.claude/.credentials.json` if Keychain entry not found
+- [x] **AUTH-01**: App reads Claude Code OAuth token from macOS Keychain on launch
+- [x] **AUTH-02**: App falls back to reading `~/.claude/.credentials.json` if Keychain entry not found
 
 ### Menu Bar Display
 
@@ -64,8 +64,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
 | LIFE-01 | Phase 1 | Pending |
 | LIFE-02 | Phase 1 | Pending |
 | POLL-01 | Phase 2 | Pending |
