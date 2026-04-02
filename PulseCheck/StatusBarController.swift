@@ -14,7 +14,9 @@ class StatusBarController: NSObject {
 
         if let button = statusItem.button {
             button.title = "—%"
-            button.image = NSImage(named: "PulseCheckIcon")
+            let icon = NSImage(named: "PulseCheckIcon")
+            icon?.isTemplate = true
+            button.image = icon
             button.imagePosition = .imageLeading
             button.action = #selector(togglePopover(_:))
             button.target = self
