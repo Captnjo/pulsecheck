@@ -14,6 +14,8 @@ class UsageStore {
     }
     var usageResponse: UsageResponse?
     var usageError: AppError?
+    var isFetching: Bool = false
+    var lastFetchDate: Date?
 
     private let credentialsService = CredentialsService()
     private let apiClient = AnthropicAPIClient()
@@ -67,6 +69,12 @@ class UsageStore {
     }
 
     func fetchUsage() async {
+        guard !isFetching else {
+            logger.debug("fetchUsage skipped — already in progress")
+            return
+        }
+        isFetching = true
+        defer { isFetching = false }
         // Re-read credentials if missing or expired — Claude Code may have refreshed them
         // Throttle to avoid spamming Keychain prompts if user clicked "Allow" instead of "Always Allow"
         if (credentials == nil || (credentials?.isExpired ?? false))
@@ -82,6 +90,7 @@ class UsageStore {
         switch result {
         case .success(let response):
             self.usageResponse = response
+            self.lastFetchDate = Date()
             self.usageError = nil
             self.backoffSeconds = 60  // Reset to normal interval
             // Use five_hour utilization as primary display value
