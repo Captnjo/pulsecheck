@@ -10,8 +10,11 @@ class UsageStore {
     var credentials: ClaudeOAuthCredentials?
     var credentialError: AppError?
     var menuBarTitle: String = "—%"
+    var usageResponse: UsageResponse?
+    var usageError: AppError?
 
     private let credentialsService = CredentialsService()
+    private let apiClient = AnthropicAPIClient()
 
     func loadCredentials() async {
         let result = await credentialsService.loadCredentials()
@@ -30,6 +33,37 @@ class UsageStore {
             self.credentialError = .keychainItemNotFound
             self.menuBarTitle = "No credentials"
             logger.error("No credentials available from Keychain or file")
+        }
+    }
+
+    func fetchUsage() async {
+        guard let creds = credentials else {
+            logger.warning("fetchUsage called with no credentials — skipping")
+            return
+        }
+        let result = await apiClient.fetchUsage(accessToken: creds.accessToken)
+        switch result {
+        case .success(let response):
+            self.usageResponse = response
+            self.usageError = nil
+            // Use five_hour utilization as primary display value
+            if let fiveHour = response.fiveHour {
+                self.menuBarTitle = fiveHour.displayString  // e.g. "51%"
+            } else if let sevenDay = response.sevenDay {
+                self.menuBarTitle = sevenDay.displayString
+            } else {
+                self.menuBarTitle = "—%"
+            }
+        case .failure(let error):
+            self.usageResponse = nil
+            self.usageError = error
+            switch error {
+            case .apiUnauthorized:
+                self.menuBarTitle = "Auth expired"
+            default:
+                self.menuBarTitle = "API unavailable"
+            }
+            logger.error("API call failed: \(error.localizedDescription)")
         }
     }
 }

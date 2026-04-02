@@ -11,6 +11,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             await usageStore.loadCredentials()
             statusBarController.updateTitle(usageStore.menuBarTitle)
+
+            // Only fetch if we have credentials
+            if usageStore.credentials != nil {
+                await usageStore.fetchUsage()
+                statusBarController.updateTitle(usageStore.menuBarTitle)
+            }
         }
     }
 }
