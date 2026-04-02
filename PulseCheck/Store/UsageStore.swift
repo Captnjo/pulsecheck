@@ -19,6 +19,8 @@ class UsageStore {
     private let apiClient = AnthropicAPIClient()
     private var pollingTask: Task<Void, Never>?
     private var backoffSeconds: Int = 60
+    private var lastCredentialCheck: Date = .distantPast
+    private let credentialRecheckInterval: TimeInterval = 300  // 5 minutes
     var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
@@ -66,7 +68,10 @@ class UsageStore {
 
     func fetchUsage() async {
         // Re-read credentials if missing or expired — Claude Code may have refreshed them
-        if credentials == nil || (credentials?.isExpired ?? false) {
+        // Throttle to avoid spamming Keychain prompts if user clicked "Allow" instead of "Always Allow"
+        if (credentials == nil || (credentials?.isExpired ?? false))
+            && Date().timeIntervalSince(lastCredentialCheck) >= credentialRecheckInterval {
+            lastCredentialCheck = Date()
             await loadCredentials()
         }
         guard let creds = credentials else {
