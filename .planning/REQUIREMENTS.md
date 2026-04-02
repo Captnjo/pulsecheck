@@ -16,10 +16,10 @@
 
 ### Dropdown Panel
 
-- [ ] **PANEL-01**: Panel shows daily usage out of daily limit with progress bar
-- [ ] **PANEL-02**: Panel shows weekly usage out of weekly limit with progress bar
-- [ ] **PANEL-03**: Panel shows time remaining until limit resets
-- [ ] **PANEL-04**: Panel shows error state when offline or auth fails
+- [x] **PANEL-01**: Panel shows daily usage out of daily limit with progress bar
+- [x] **PANEL-02**: Panel shows weekly usage out of weekly limit with progress bar
+- [x] **PANEL-03**: Panel shows time remaining until limit resets
+- [x] **PANEL-04**: Panel shows error state when offline or auth fails
 
 ### Polling
 
@@ -28,8 +28,8 @@
 
 ### App Lifecycle
 
-- [ ] **LIFE-01**: App runs as LSUIElement (no Dock icon)
-- [ ] **LIFE-02**: Dropdown includes Quit menu item
+- [x] **LIFE-01**: App runs as LSUIElement (no Dock icon)
+- [x] **LIFE-02**: Dropdown includes Quit menu item
 - [x] **LIFE-03**: App supports Launch at Login via SMAppService
 
 ## v2 Requirements
@@ -66,15 +66,15 @@
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | Complete |
 | AUTH-02 | Phase 1 | Complete |
-| LIFE-01 | Phase 1 | Pending |
-| LIFE-02 | Phase 1 | Pending |
+| LIFE-01 | Phase 1 | Complete |
+| LIFE-02 | Phase 1 | Complete |
 | POLL-01 | Phase 2 | Complete |
 | POLL-02 | Phase 2 | Complete |
 | DISP-01 | Phase 2 | Complete |
-| PANEL-01 | Phase 3 | Pending |
-| PANEL-02 | Phase 3 | Pending |
-| PANEL-03 | Phase 3 | Pending |
-| PANEL-04 | Phase 3 | Pending |
+| PANEL-01 | Phase 3 | Complete |
+| PANEL-02 | Phase 3 | Complete |
+| PANEL-03 | Phase 3 | Complete |
+| PANEL-04 | Phase 3 | Complete |
 | LIFE-03 | Phase 4 | Complete |
 
 **Coverage:**
