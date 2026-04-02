@@ -48,7 +48,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Polling loop in UsageStore (startPolling/stopPolling), AppDelegate lifecycle wiring, "—" error display
+- [x] 02-01-PLAN.md — Polling loop in UsageStore (startPolling/stopPolling), AppDelegate lifecycle wiring, "—" error display
 
 ### Phase 3: Dropdown Panel
 **Goal**: Users can open the dropdown and see full daily/weekly usage detail with reset timing and error context

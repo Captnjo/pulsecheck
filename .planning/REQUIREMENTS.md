@@ -12,7 +12,7 @@
 
 ### Menu Bar Display
 
-- [ ] **DISP-01**: Menu bar shows icon with current usage percentage as text
+- [x] **DISP-01**: Menu bar shows icon with current usage percentage as text
 
 ### Dropdown Panel
 
@@ -23,8 +23,8 @@
 
 ### Polling
 
-- [ ] **POLL-01**: App polls Anthropic usage endpoint every 60 seconds in background
-- [ ] **POLL-02**: App handles network errors gracefully without crashing
+- [x] **POLL-01**: App polls Anthropic usage endpoint every 60 seconds in background
+- [x] **POLL-02**: App handles network errors gracefully without crashing
 
 ### App Lifecycle
 
@@ -68,9 +68,9 @@
 | AUTH-02 | Phase 1 | Complete |
 | LIFE-01 | Phase 1 | Pending |
 | LIFE-02 | Phase 1 | Pending |
-| POLL-01 | Phase 2 | Pending |
-| POLL-02 | Phase 2 | Pending |
-| DISP-01 | Phase 2 | Pending |
+| POLL-01 | Phase 2 | Complete |
+| POLL-02 | Phase 2 | Complete |
+| DISP-01 | Phase 2 | Complete |
 | PANEL-01 | Phase 3 | Pending |
 | PANEL-02 | Phase 3 | Pending |
 | PANEL-03 | Phase 3 | Pending |

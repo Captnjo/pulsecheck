@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-foundation 01-03-PLAN.md (checkpoint pending human verify)
-last_updated: "2026-04-02T06:42:18.634Z"
+status: verifying
+stopped_at: "Completed 02-live-data 02-01-PLAN.md (checkpoint:human-verify pending)"
+last_updated: "2026-04-02T07:16:34.617Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Instant visibility into Claude Code usage limits without leaving the desktop
-**Current focus:** Phase 01 — Foundation
+**Current focus:** Phase 02 — Live Data
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Ready to execute
+Phase: 02 (Live Data) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
 Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation P02 | 15 | 2 tasks | 6 files |
 | Phase 01-foundation P03 | 15 | 2 tasks | 5 files |
+| Phase 02-live-data P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: expiresAt is milliseconds — divide by 1000.0 when constructing Date from Keychain token
 - [Phase 01-foundation]: utilization field is already 0-100 percentage — displayString does not multiply
 - [Phase 01-foundation]: fiveHour is primary display value in menu bar; sevenDay is fallback; --% if both nil
+- [Phase 02-live-data]: Polling uses stored Task property with startPolling/stopPolling pair; app lifecycle cleans up via applicationWillTerminate
+- [Phase 02-live-data]: API error display changed to em dash without % to distinguish from loading state per DISP-01 locked decision
 
 ### Pending Todos
 
@@ -82,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T06:28:36.041Z
-Stopped at: Completed 01-foundation 01-03-PLAN.md (checkpoint pending human verify)
+Last session: 2026-04-02T07:16:34.614Z
+Stopped at: Completed 02-live-data 02-01-PLAN.md (checkpoint:human-verify pending)
 Resume file: None
