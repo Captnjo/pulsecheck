@@ -19,6 +19,8 @@ class UsageStore {
 
     private let credentialsService = CredentialsService()
     private let apiClient = AnthropicAPIClient()
+    private let tokenRefreshService = TokenRefreshService()
+    private let keychain = KeychainService()
     private var pollingTask: Task<Void, Never>?
     private var backoffSeconds: Int = 60
     private var lastCredentialCheck: Date = .distantPast
@@ -29,16 +31,10 @@ class UsageStore {
         let result = await credentialsService.loadCredentials()
         switch result {
         case .success(let creds):
+            self.credentials = creds
+            self.credentialError = nil
             if creds.isExpired {
-                self.credentials = nil
-                self.credentialError = .apiUnauthorized
-                self.usageResponse = nil
-                self.usageError = .apiUnauthorized
-                self.menuBarTitle = "Auth expired"
-                logger.warning("Loaded token is already expired")
-            } else {
-                self.credentials = creds
-                self.credentialError = nil
+                logger.info("Loaded expired credentials — refresh will be attempted on next fetch")
             }
         case .failure:
             self.credentials = nil
@@ -109,17 +105,66 @@ class UsageStore {
                 self.menuBarTitle = "—%"
             }
         case .failure(let error):
-            self.usageError = error
             switch error {
             case .apiUnauthorized:
-                self.usageResponse = nil
-                self.menuBarTitle = "Auth expired"
-                self.backoffSeconds = 60
+                // Attempt single token refresh
+                guard !creds.refreshToken.isEmpty else {
+                    self.usageResponse = nil
+                    self.menuBarTitle = "Auth expired"
+                    self.backoffSeconds = 60
+                    self.usageError = error
+                    logger.error("401 received but no refresh token available")
+                    break
+                }
+                do {
+                    logger.info("401 received — attempting token refresh")
+                    let newCreds = try await tokenRefreshService.refresh(
+                        using: creds.refreshToken,
+                        preservingScopes: creds.scopes
+                    )
+                    try keychain.writeShadowCredentials(newCreds)
+                    self.credentials = newCreds
+                    logger.info("Token refreshed successfully — retrying API call")
+
+                    // Retry once with new token
+                    let retryResult = await apiClient.fetchUsage(accessToken: newCreds.accessToken)
+                    switch retryResult {
+                    case .success(let response):
+                        self.usageResponse = response
+                        self.lastFetchDate = Date()
+                        self.usageError = nil
+                        self.backoffSeconds = 60
+                        if let fiveHour = response.fiveHour {
+                            self.menuBarTitle = fiveHour.displayString
+                        } else if let sevenDay = response.sevenDay {
+                            self.menuBarTitle = sevenDay.displayString
+                        } else {
+                            self.menuBarTitle = "—%"
+                        }
+                    case .failure(let retryError):
+                        self.usageError = retryError
+                        self.usageResponse = nil
+                        self.menuBarTitle = "Auth expired"
+                        self.backoffSeconds = 60
+                        logger.error("Retry after refresh failed: \(retryError.localizedDescription)")
+                    }
+                } catch {
+                    // Refresh failed — clear shadow, show error, let next poll cycle re-read Claude Code's token
+                    logger.error("Token refresh failed: \(error.localizedDescription)")
+                    self.credentials = nil
+                    self.usageError = .apiUnauthorized
+                    self.usageResponse = nil
+                    self.menuBarTitle = "Auth expired"
+                    self.backoffSeconds = 60
+                    keychain.deleteShadowCredentials()
+                }
             case .apiError(429, _):
                 // Rate limited — keep last good data, back off
+                self.usageError = error
                 self.backoffSeconds = min(backoffSeconds * 2, 600)  // Max 10 min
                 logger.warning("Rate limited (429) — backing off to \(self.backoffSeconds)s")
             default:
+                self.usageError = error
                 self.usageResponse = nil
                 self.menuBarTitle = "—"
                 self.backoffSeconds = 60
