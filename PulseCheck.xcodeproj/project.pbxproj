@@ -17,6 +17,7 @@
 		A1000063 /* UsageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000073 /* UsageStore.swift */; };
 		A1000064 /* UsageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000074 /* UsageResponse.swift */; };
 		A1000065 /* AnthropicAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000075 /* AnthropicAPIClient.swift */; };
+		A1000066 /* TokenRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000076 /* TokenRefreshService.swift */; };
 		A1000081 /* UsagePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000080 /* UsagePanelView.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,7 @@
 		A1000073 /* UsageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageStore.swift; path = PulseCheck/Store/UsageStore.swift; sourceTree = "<group>"; };
 		A1000074 /* UsageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageResponse.swift; path = PulseCheck/Models/UsageResponse.swift; sourceTree = "<group>"; };
 		A1000075 /* AnthropicAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnthropicAPIClient.swift; path = PulseCheck/Services/AnthropicAPIClient.swift; sourceTree = "<group>"; };
+		A1000076 /* TokenRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TokenRefreshService.swift; path = PulseCheck/Services/TokenRefreshService.swift; sourceTree = "<group>"; };
 		A1000080 /* UsagePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsagePanelView.swift; path = PulseCheck/Views/UsagePanelView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -87,6 +89,7 @@
 				A1000071 /* KeychainService.swift */,
 				A1000072 /* CredentialsService.swift */,
 				A1000075 /* AnthropicAPIClient.swift */,
+				A1000076 /* TokenRefreshService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -203,6 +206,7 @@
 				A1000063 /* UsageStore.swift in Sources */,
 				A1000064 /* UsageResponse.swift in Sources */,
 				A1000065 /* AnthropicAPIClient.swift in Sources */,
+				A1000066 /* TokenRefreshService.swift in Sources */,
 				A1000081 /* UsagePanelView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

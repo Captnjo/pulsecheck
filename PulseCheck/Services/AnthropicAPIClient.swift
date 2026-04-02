@@ -23,6 +23,13 @@ struct AnthropicAPIClient {
                 return .success(usage)
             case 401:
                 return .failure(.apiUnauthorized)
+            case 403:
+                let bodySnippet = String(data: data.prefix(500), encoding: .utf8) ?? ""
+                if bodySnippet.contains("scope") || bodySnippet.contains("user:profile") {
+                    logger.warning("403 scope-loss detected — routing to apiUnauthorized")
+                    return .failure(.apiUnauthorized)
+                }
+                return .failure(.apiError(403, String(data: data.prefix(200), encoding: .utf8) ?? ""))
             default:
                 let snippet = String(data: data.prefix(200), encoding: .utf8) ?? ""
                 return .failure(.apiError(httpResponse.statusCode, snippet))
