@@ -23,13 +23,14 @@ Instant visibility into Claude Code usage limits without leaving the desktop.
 - ✓ App runs as LSUIElement (no Dock icon) — v1.0 (LIFE-01)
 - ✓ Dropdown includes Quit menu item — v1.0 (LIFE-02)
 - ✓ Launch at Login via SMAppService — v1.0 (LIFE-03)
+- ✓ Adaptive template icon for light/dark mode — v1.1 (DISP-11)
+- ✓ Last-updated timestamp in dropdown — v1.1 (PANEL-10)
+- ✓ Manual refresh button in dropdown — v1.1 (PANEL-11)
+- ✓ Auto-refresh expired OAuth tokens (shadow Keychain item) — v1.1 (AUTH-10)
 
 ### Active
 
-- [ ] Adaptive template icon for light/dark mode
-- [ ] Last-updated timestamp in dropdown
-- [ ] Manual refresh button in dropdown
-- [ ] Auto-refresh expired OAuth tokens (shadow Keychain item)
+(No active requirements — planning next milestone)
 
 ### Out of Scope
 
@@ -40,22 +41,25 @@ Instant visibility into Claude Code usage limits without leaving the desktop.
 - Multi-account support — single-purpose tool for personal use
 - File-based credential fallback — removed in v1.0 tech debt cleanup; Keychain is the only path
 
-## Current Milestone: v1.1 Polish & Resilience
+## Current State
 
-**Goal:** Adaptive visuals, better UX feedback, and self-healing auth
+Shipped v1.1 (Polish & Resilience). All planned milestones complete.
 
-**Target features:**
+<details>
+<summary>v1.1 Polish & Resilience — SHIPPED 2026-04-03</summary>
+
 - Adaptive template icon for light/dark mode
-- Last-updated timestamp in dropdown
-- Manual refresh button in dropdown
-- Auto-refresh expired OAuth tokens (shadow Keychain item)
+- Last-updated timestamp and manual refresh button in dropdown panel
+- Automatic OAuth token refresh via shadow Keychain item
+</details>
 
 ## Context
 
-Shipped v1.0 with 535 LOC Swift across 9 source files.
+813 LOC Swift across 10 source files. Two milestones shipped (v1.0 MVP, v1.1 Polish & Resilience).
 Tech stack: Swift 6.1, SwiftUI, AppKit (NSStatusItem + NSPopover), URLSession async/await.
 Uses undocumented Anthropic OAuth endpoint (`/api/oauth/usage`) — may break without notice.
 Keychain service name: `Claude Code-credentials` (reads Claude Code's own OAuth token).
+Shadow Keychain item: `PulseCheck-claude-credentials` (stores refreshed tokens without modifying Claude Code's item).
 App Sandbox enabled with network client entitlement.
 
 ## Constraints
@@ -76,6 +80,10 @@ App Sandbox enabled with network client entitlement.
 | 60-second polling with Task.sleep | Near real-time without excessive API calls; structured concurrency | ✓ Good |
 | Single-purpose (Claude only) | Keep it focused and ship fast | ✓ Good |
 | fiveHour as primary display metric | API returns fiveHour and sevenDay; fiveHour is the active rate limit | ✓ Good |
+| Template icon (isTemplate = true) | AppKit handles light/dark rendering automatically — no observers needed | ✓ Good — zero maintenance |
+| Absolute timestamp over relative | Avoids stale-looking "X minutes ago" when panel opens after long interval | ✓ Good — user-approved deviation |
+| Shadow Keychain item for refreshed tokens | Never modify Claude Code's Keychain item — avoids consuming single-use refresh token | ✓ Good — critical safety decision |
+| Actor-based token refresh dedup | Swift actor + stored Task handle prevents concurrent OAuth refresh requests | ✓ Good — clean concurrency |
 
 ## Evolution
 
@@ -95,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after v1.1 milestone start*
+*Last updated: 2026-04-03 after v1.1 milestone completion*
