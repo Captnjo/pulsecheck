@@ -26,6 +26,12 @@ struct AnthropicAPIClient {
                 return .success(usage)
             case 401:
                 return .failure(.apiUnauthorized)
+            case 429:
+                // Honor Retry-After (seconds form) when present
+                let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After")
+                    .flatMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+                logger.warning("429 rate limited; Retry-After=\(retryAfter.map(String.init) ?? "none")")
+                return .failure(.rateLimited(retryAfterSeconds: retryAfter))
             case 403:
                 let bodySnippet = String(data: data.prefix(500), encoding: .utf8) ?? ""
                 if bodySnippet.contains("scope") || bodySnippet.contains("user:profile") {

@@ -38,6 +38,11 @@ class UsageStore {
     private var backoffSeconds: Int = 60
     private var lastCredentialCheck: Date = .distantPast
     private let credentialRecheckInterval: TimeInterval = 300  // 5 minutes
+    /// The access token that last received a persistent 401. Until the keychain
+    /// yields a DIFFERENT token, calling the usage endpoint is pointless — and
+    /// repeated rejected calls trip Anthropic's abuse limiter (the 429 storm of
+    /// 2026-09-04). Skip API calls for a known-rejected token.
+    private var rejectedAccessToken: String?
     var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
@@ -105,6 +110,17 @@ class UsageStore {
         }
         guard let creds = credentials else {
             logger.warning("No Claude credentials — fetching remaining providers only")
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask { await self.fetchCodexUsage() }
+                group.addTask { await self.fetchOpenRouterUsage() }
+            }
+            return
+        }
+        if creds.accessToken == rejectedAccessToken {
+            // Same token already rejected server-side — an API call is useless and
+            // risks tripping the rate limiter again. Wait for Claude Code to rotate
+            // the keychain (detected next poll via the throttled re-read above).
+            logger.debug("Skipping API call — token previously rejected; awaiting keychain change")
             await withTaskGroup(of: Void.self) { group in
                 group.addTask { await self.fetchCodexUsage() }
                 group.addTask { await self.fetchOpenRouterUsage() }
@@ -192,6 +208,7 @@ class UsageStore {
         self.lastFetchDate = Date()
         self.usageError = nil
         self.backoffSeconds = 60
+        self.rejectedAccessToken = nil
         updateTitle()
     }
 
@@ -212,10 +229,15 @@ class UsageStore {
             switch error {
             case .apiUnauthorized:
                 await handleUnauthorized(with: creds)
-            case .apiError(429, _):
-                // Rate limited — keep last good data, back off
+            case .rateLimited(let retryAfter):
+                // Rate limited — keep last good data, back off. Honor Retry-After
+                // when the server sends one (capped at 30 min).
                 self.usageError = error
-                self.backoffSeconds = min(backoffSeconds * 2, 600)  // Max 10 min
+                var backoff = min(backoffSeconds * 2, 600)
+                if let retryAfter {
+                    backoff = max(backoff, min(retryAfter, 1800))
+                }
+                self.backoffSeconds = backoff
                 logger.warning("Rate limited (429) — backing off to \(self.backoffSeconds)s")
             default:
                 self.usageError = error
@@ -235,6 +257,7 @@ class UsageStore {
     private func handleUnauthorized(with creds: ClaudeOAuthCredentials) async {
         logger.info("401 received — re-reading credentials from Keychain")
         let previousToken = creds.accessToken
+        rejectedAccessToken = previousToken  // remember: do not call again with this token
         await loadCredentials()  // unthrottled: recovery path
 
         // Claude Code may have refreshed since the failed call — retry with its token
@@ -268,15 +291,20 @@ class UsageStore {
             self.credentials = newCreds
             self.credentialSource = .shadow
             logger.info("Token refreshed successfully — retrying API call")
+            self.rejectedAccessToken = nil  // new token lineage, API calls allowed again
 
             let retry = await apiClient.fetchUsage(accessToken: newCreds.accessToken)
             switch retry {
             case .success(let response):
                 applySuccess(response)
             case .failure(let retryError):
-                if case .apiError(429, _) = retryError {
+                if case .rateLimited(let retryAfter) = retryError {
                     self.usageError = retryError
-                    self.backoffSeconds = min(backoffSeconds * 2, 600)
+                    var backoff = min(backoffSeconds * 2, 600)
+                    if let retryAfter {
+                        backoff = max(backoff, min(retryAfter, 1800))
+                    }
+                    self.backoffSeconds = backoff
                 } else {
                     self.usageError = retryError
                     self.usageResponse = nil
