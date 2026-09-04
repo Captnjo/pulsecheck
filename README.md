@@ -45,8 +45,12 @@ Requires macOS 14 (Sonoma) or later. Pick one:
 ### Option A: Homebrew (recommended)
 
 ```bash
+brew tap captnjo/tap
+brew trust captnjo/tap   # one-time: acknowledges you trust this tap (Homebrew 6+)
 brew install --cask captnjo/tap/pulsecheck
 ```
+
+> **Why the trust step?** Homebrew 6 warns "untrusted tap" for every third-party tap added over HTTPS — trust is a per-user, local decision, and this repo is no exception. Review the [cask source](https://github.com/Captnjo/homebrew-tap/blob/main/Casks/pulsecheck.rb) (it just downloads the DMG below and verifies its SHA-256) and run `brew trust captnjo/tap` once. Upgrades then work normally with `brew upgrade --cask pulsecheck`.
 
 ---
 
