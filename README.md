@@ -56,7 +56,7 @@ brew install --cask captnjo/tap/pulsecheck
 
 ### Option B: Download DMG
 
-**[Download PulseCheck-1.3.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.3/PulseCheck-1.3.dmg)**
+**[Download PulseCheck-1.3.1.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.3.1/PulseCheck-1.3.1.dmg)**
 
 1. Open the downloaded DMG
 2. Drag **PulseCheck** into your **Applications** folder
