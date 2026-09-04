@@ -1,31 +1,171 @@
 import SwiftUI
-import AppKit
 import ServiceManagement
 
 struct UsagePanelView: View {
     var store: UsageStore
+    @State private var selectedProvider: Provider = .claude
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let response = store.usageResponse {
-                normalState(response: response)
-            } else {
-                errorState()
+            Picker("Provider", selection: $selectedProvider) {
+                ForEach(Provider.allCases) { provider in
+                    Text(provider.displayName).tag(provider)
+                }
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+
+            Divider()
+
+            switch selectedProvider {
+            case .claude: claudeTab()
+            case .codex: codexTab()
+            case .openRouter: openRouterTab()
+            }
+
+            Divider()
+            timestampAndRefreshRow()
+            bottomRow()
         }
         .padding(16)
-        .frame(width: 280)
+        .frame(width: 300)
     }
 
+    // MARK: - Claude
+
     @ViewBuilder
-    private func normalState(response: UsageResponse) -> some View {
-        usageSection(title: "Daily (5h window)", period: response.fiveHour, showDate: false)
-        Divider()
-        usageSection(title: "Weekly (7-day window)", period: response.sevenDay, showDate: true)
-        Divider()
-        launchClaudeButton()
-        timestampAndRefreshRow()
-        bottomRow()
+    private func claudeTab() -> some View {
+        if let response = store.usageResponse {
+            usageSection(title: "Daily (5h window)", period: response.fiveHour, showDate: false)
+            Divider()
+            usageSection(title: "Weekly (7-day window)", period: response.sevenDay, showDate: true)
+        } else {
+            errorBlock(store.usageError ?? .providerNotAuthenticated("Claude Code"))
+        }
+    }
+
+    // MARK: - Codex
+
+    @ViewBuilder
+    private func codexTab() -> some View {
+        if let usage = store.codexUsage {
+            if let primary = usage.primaryWindow {
+                codexWindowSection(title: "Daily (5h window)", window: primary, showDate: false)
+                Divider()
+            }
+            if let secondary = usage.secondaryWindow {
+                codexWindowSection(title: "Weekly (7-day window)", window: secondary, showDate: true)
+                Divider()
+            }
+            if usage.primaryWindow == nil && usage.secondaryWindow == nil {
+                Text("No usage windows reported yet — run codex first")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } else {
+            errorBlock(codexErrorOrPlaceholder)
+        }
+    }
+
+    private var codexErrorOrPlaceholder: AppError {
+        if let error = store.codexError, case .apiError(_, let snippet) = error, snippet.isEmpty {
+            return .apiError(0, "Error")
+        }
+        return store.codexError ?? .providerUnavailable("Codex")
+    }
+
+    private func codexWindowSection(title: String, window: CodexUsage.Window, showDate: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                Text(window.displayString)
+                    .font(.headline)
+                    .monospacedDigit()
+            }
+            ProgressView(value: Double(window.usedPercent) / 100.0)
+                .progressViewStyle(.linear)
+                .tint(Color(red: 0.55, green: 0.55, blue: 0.60))
+            Text(codexResetText(window: window, showDate: showDate))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func codexResetText(window: CodexUsage.Window, showDate: Bool) -> String {
+        let resetDate = Date(timeIntervalSince1970: TimeInterval(window.resetAt))
+        let seconds = Int(resetDate.timeIntervalSinceNow)
+        let timeStr = formatResetTime(resetDate)
+        guard seconds > 0 else { return "Resets soon" }
+        if showDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEE d MMMM 'at' h:mma"
+            formatter.amSymbol = "am"
+            formatter.pmSymbol = "pm"
+            return "Resets \(formatter.string(from: resetDate))"
+        }
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
+        if hours > 0 { return "Resets in \(hours)h \(minutes)m at \(timeStr)" }
+        return "Resets in \(minutes)m at \(timeStr)"
+    }
+
+    // MARK: - OpenRouter
+
+    @ViewBuilder
+    private func openRouterTab() -> some View {
+        if let info = store.openRouterUsage {
+            spendRow(label: "Today", amount: info.usageDaily)
+            spendRow(label: "This week", amount: info.usageWeekly)
+            spendRow(label: "This month", amount: info.usageMonthly)
+            if let limit = info.key.limit, limit > 0 {
+                Divider()
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("Per-key limit")
+                            .font(.headline)
+                        Spacer()
+                        Text(String(format: "$%.2f left", info.limitRemaining ?? 0))
+                            .font(.headline)
+                            .monospacedDigit()
+                    }
+                    ProgressView(value: (info.limitUtilization ?? 0) / 100.0)
+                        .progressViewStyle(.linear)
+                        .tint(Color(red: 0.40, green: 0.55, blue: 0.75))
+                }
+            }
+        } else {
+            errorBlock(store.openRouterError ?? .providerNotAuthenticated("OpenRouter"))
+        }
+    }
+
+    private func spendRow(label: String, amount: Double) -> some View {
+        HStack {
+            Text(label)
+                .font(.headline)
+            Spacer()
+            Text(String(format: "$%.2f", amount))
+                .font(.headline)
+                .monospacedDigit()
+        }
+    }
+
+    // MARK: - Shared
+
+    @ViewBuilder
+    private func errorBlock(_ error: AppError) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 24))
+                .foregroundStyle(.secondary)
+            Text(error.localizedDescription)
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
     }
 
     @ViewBuilder
@@ -52,25 +192,6 @@ struct UsagePanelView: View {
                     .foregroundStyle(.secondary)
             }
         }
-    }
-
-    @ViewBuilder
-    private func errorState() -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 24))
-                .foregroundStyle(.secondary)
-            Text(store.usageError?.localizedDescription ?? "No data available")
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        Divider()
-        launchClaudeButton()
-        timestampAndRefreshRow()
-        bottomRow()
     }
 
     @ViewBuilder
@@ -108,21 +229,6 @@ struct UsagePanelView: View {
         formatter.amSymbol = "am"
         formatter.pmSymbol = "pm"
         return "Updated \(formatter.string(from: date))"
-    }
-
-    @ViewBuilder
-    private func launchClaudeButton() -> some View {
-        Button {
-            NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications/Claude.app"))
-        } label: {
-            HStack {
-                Image(systemName: "arrow.up.forward.app")
-                Text("Open Claude")
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
-        .disabled(!FileManager.default.fileExists(atPath: "/Applications/Claude.app"))
     }
 
     @ViewBuilder

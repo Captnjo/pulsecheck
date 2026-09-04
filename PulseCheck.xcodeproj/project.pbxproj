@@ -19,7 +19,22 @@
 		A1000065 /* AnthropicAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000075 /* AnthropicAPIClient.swift */; };
 		A1000066 /* TokenRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000076 /* TokenRefreshService.swift */; };
 		A1000081 /* UsagePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000080 /* UsagePanelView.swift */; };
+		A1000067 /* ProviderUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000077 /* ProviderUsage.swift */; };
+		A1000068 /* CodexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000078 /* CodexService.swift */; };
+		A1000069 /* OpenRouterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000079 /* OpenRouterService.swift */; };
+		B2000001 /* CredentialLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000011 /* CredentialLogicTests.swift */; };
+		B2000003 /* ProviderLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000013 /* ProviderLogicTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B2000097 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1000100 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1000099;
+			remoteInfo = PulseCheck;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A1000009 /* PulseCheck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseCheck.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -37,6 +52,12 @@
 		A1000075 /* AnthropicAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnthropicAPIClient.swift; path = PulseCheck/Services/AnthropicAPIClient.swift; sourceTree = "<group>"; };
 		A1000076 /* TokenRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TokenRefreshService.swift; path = PulseCheck/Services/TokenRefreshService.swift; sourceTree = "<group>"; };
 		A1000080 /* UsagePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsagePanelView.swift; path = PulseCheck/Views/UsagePanelView.swift; sourceTree = "<group>"; };
+		A1000077 /* ProviderUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProviderUsage.swift; path = PulseCheck/Models/ProviderUsage.swift; sourceTree = "<group>"; };
+		A1000078 /* CodexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CodexService.swift; path = PulseCheck/Services/CodexService.swift; sourceTree = "<group>"; };
+		A1000079 /* OpenRouterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OpenRouterService.swift; path = PulseCheck/Services/OpenRouterService.swift; sourceTree = "<group>"; };
+		B2000010 /* PulseCheckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseCheckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2000011 /* CredentialLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialLogicTests.swift; sourceTree = "<group>"; };
+		B2000013 /* ProviderLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderLogicTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000008 /* PulseCheck */,
+				B2000012 /* PulseCheckTests */,
 				A1000031 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -79,6 +101,7 @@
 			children = (
 				A1000070 /* AppError.swift */,
 				A1000074 /* UsageResponse.swift */,
+				A1000077 /* ProviderUsage.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -90,6 +113,8 @@
 				A1000072 /* CredentialsService.swift */,
 				A1000075 /* AnthropicAPIClient.swift */,
 				A1000076 /* TokenRefreshService.swift */,
+				A1000078 /* CodexService.swift */,
+				A1000079 /* OpenRouterService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -124,8 +149,18 @@
 			isa = PBXGroup;
 			children = (
 				A1000009 /* PulseCheck.app */,
+				B2000010 /* PulseCheckTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B2000012 /* PulseCheckTests */ = {
+			isa = PBXGroup;
+			children = (
+				B2000011 /* CredentialLogicTests.swift */,
+				B2000013 /* ProviderLogicTests.swift */,
+			);
+			path = PulseCheckTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +183,22 @@
 			productReference = A1000009 /* PulseCheck.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B2000099 /* PulseCheckTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2000050 /* Build configuration list for PBXNativeTarget "PulseCheckTests" */;
+			buildPhases = (
+				B2000002 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B2000098 /* PBXTargetDependency */,
+			);
+			name = PulseCheckTests;
+			productName = PulseCheckTests;
+			productReference = B2000010 /* PulseCheckTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -160,6 +211,10 @@
 				TargetAttributes = {
 					A1000099 = {
 						CreatedOnToolsVersion = 16.3;
+					};
+					B2000099 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = A1000099;
 					};
 				};
 			};
@@ -177,6 +232,7 @@
 			projectRoot = "";
 			targets = (
 				A1000099 /* PulseCheck */,
+				B2000099 /* PulseCheckTests */,
 			);
 		};
 /* End PBXProject section */
@@ -193,6 +249,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B2000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2000001 /* CredentialLogicTests.swift in Sources */,
+				B2000003 /* ProviderLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A1000007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -205,13 +270,24 @@
 				A1000062 /* CredentialsService.swift in Sources */,
 				A1000063 /* UsageStore.swift in Sources */,
 				A1000064 /* UsageResponse.swift in Sources */,
+				A1000067 /* ProviderUsage.swift in Sources */,
 				A1000065 /* AnthropicAPIClient.swift in Sources */,
 				A1000066 /* TokenRefreshService.swift in Sources */,
+				A1000068 /* CodexService.swift in Sources */,
+				A1000069 /* OpenRouterService.swift in Sources */,
 				A1000081 /* UsagePanelView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B2000098 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1000099 /* PulseCheck */;
+			targetProxy = B2000097 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000041 /* Debug */ = {
@@ -348,7 +424,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -374,12 +450,62 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+		B2000051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheckTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PulseCheck.app/Contents/MacOS/PulseCheck";
+			};
+			name = Debug;
+		};
+		B2000052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheckTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PulseCheck.app/Contents/MacOS/PulseCheck";
 			};
 			name = Release;
 		};
@@ -400,6 +526,15 @@
 			buildConfigurations = (
 				A1000051 /* Debug */,
 				A1000052 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B2000050 /* Build configuration list for PBXNativeTarget "PulseCheckTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2000051 /* Debug */,
+				B2000052 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

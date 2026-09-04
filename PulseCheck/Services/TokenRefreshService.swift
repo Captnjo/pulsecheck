@@ -33,26 +33,48 @@ actor TokenRefreshService {
     private static let tokenURL = URL(string: "https://console.anthropic.com/v1/oauth/token")!
     private static let clientID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
     private var refreshTask: Task<ClaudeOAuthCredentials, Error>?
+    private var refreshTaskToken: String?
 
+    /// Deduplicates concurrent refreshes for the same refresh token. Keyed by token:
+    /// a caller with a different token must never receive an in-flight task's result.
     func refresh(using refreshToken: String, preservingScopes scopes: [String]) async throws -> ClaudeOAuthCredentials {
-        if refreshTask == nil {
-            refreshTask = Task {
-                defer { refreshTask = nil }
-                return try await performRefresh(refreshToken: refreshToken, scopes: scopes)
+        if let existing = refreshTask, refreshTaskToken == refreshToken {
+            return try await existing.value
+        }
+        refreshTaskToken = refreshToken
+        let task = Task<ClaudeOAuthCredentials, Error> {
+            try await performRefresh(refreshToken: refreshToken, scopes: scopes)
+        }
+        refreshTask = task
+        defer {
+            if refreshTaskToken == refreshToken {
+                refreshTask = nil
+                refreshTaskToken = nil
             }
         }
-        return try await refreshTask!.value
+        return try await task.value
+    }
+
+    /// Percent-encodes a value for an application/x-www-form-urlencoded body.
+    /// Internal (not private) so unit tests can cover it.
+    static func formEncode(_ value: String) -> String {
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._~")
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
     }
 
     private func performRefresh(refreshToken: String, scopes: [String]) async throws -> ClaudeOAuthCredentials {
         var request = URLRequest(url: Self.tokenURL)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(Self.clientID)"
+        let body = "grant_type=refresh_token&refresh_token=\(Self.formEncode(refreshToken))&client_id=\(Self.formEncode(Self.clientID))"
         request.httpBody = body.data(using: .utf8)
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        let httpResponse = response as! HTTPURLResponse
+        guard let httpResponse = response as? HTTPURLResponse else {
+            logger.error("Token refresh received non-HTTP response")
+            throw AppError.tokenRefreshFailed(0, "non-HTTP response")
+        }
 
         switch httpResponse.statusCode {
         case 200:

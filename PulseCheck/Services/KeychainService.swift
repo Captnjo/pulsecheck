@@ -88,6 +88,9 @@ struct KeychainService {
         ]
         var addQuery = query
         addQuery[kSecValueData as String] = data
+        // Device-only + first-unlock: polls while the Mac is locked still succeed,
+        // and the secret never leaves this machine via backups.
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
         if addStatus == errSecDuplicateItem {
             let updateStatus = SecItemUpdate(

@@ -4,24 +4,34 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SCHEME="PulseCheck"
 APP_NAME="PulseCheck"
-DMG_NAME="PulseCheck-1.1"
 BUILD_DIR="$PROJECT_DIR/build"
 ARCHIVE_PATH="$BUILD_DIR/$SCHEME.xcarchive"
 DMG_STAGING="$BUILD_DIR/dmg-staging"
+
+# Version comes from the project's MARKETING_VERSION — single source of truth
+VERSION=$(xcodebuild -project "$PROJECT_DIR/PulseCheck.xcodeproj" \
+    -scheme "$SCHEME" -showBuildSettings 2>/dev/null \
+    | awk '/MARKETING_VERSION =/ {print $3; exit}')
+if [ -z "$VERSION" ]; then
+    echo "Error: could not read MARKETING_VERSION from project"
+    exit 1
+fi
+DMG_NAME="PulseCheck-$VERSION"
+echo "==> Building version $VERSION"
 
 echo "==> Cleaning build directory..."
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
 echo "==> Archiving..."
+# Ad-hoc signing ("-") — unsigned binaries can't carry entitlements, which silently
+# drops the sandbox and network entitlements the app declares. Ad-hoc keeps them.
 xcodebuild archive \
     -project "$PROJECT_DIR/PulseCheck.xcodeproj" \
     -scheme "$SCHEME" \
     -configuration Release \
     -archivePath "$ARCHIVE_PATH" \
     CODE_SIGN_IDENTITY="-" \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGNING_ALLOWED=NO \
     -quiet
 
 echo "==> Exporting app from archive..."
@@ -34,6 +44,11 @@ fi
 echo "==> Creating DMG staging area..."
 mkdir -p "$DMG_STAGING"
 cp -R "$APP_PATH" "$DMG_STAGING/"
+
+echo "==> Verifying signature and entitlements..."
+codesign --verify --deep --strict "$DMG_STAGING/$APP_NAME.app"
+codesign -d --entitlements - "$DMG_STAGING/$APP_NAME.app"
+
 ln -s /Applications "$DMG_STAGING/Applications"
 
 echo "==> Building DMG..."

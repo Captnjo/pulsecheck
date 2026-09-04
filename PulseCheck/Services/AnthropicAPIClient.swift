@@ -14,7 +14,10 @@ struct AnthropicAPIClient {
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            let httpResponse = response as! HTTPURLResponse
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logger.error("Usage endpoint returned non-HTTP response")
+                return .failure(.apiError(0, "non-HTTP response"))
+            }
             logger.info("API response status: \(httpResponse.statusCode)")
 
             switch httpResponse.statusCode {

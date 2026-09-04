@@ -3,34 +3,45 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.jo.PulseCheck", category: "CredentialsService")
 
+enum CredentialSource: Equatable {
+    /// Claude Code's own keychain item. Its refresh token belongs to Claude Code —
+    /// PulseCheck must NEVER use it (using it rotates it and logs Claude Code out).
+    case claudeCode
+    /// Credentials PulseCheck obtained through its own refresh calls.
+    /// The refresh token is ours to consume.
+    case shadow
+}
+
+struct CredentialSet {
+    let credentials: ClaudeOAuthCredentials
+    let source: CredentialSource
+}
+
 struct CredentialsService {
     private let keychain = KeychainService()
 
-    func loadCredentials() async -> Result<ClaudeOAuthCredentials, AppError> {
+    func loadCredentials() async -> Result<CredentialSet, AppError> {
         // Shadow-first: prefer PulseCheck's own refreshed credentials
         if let shadow = try? keychain.readShadowCredentials() {
-            // Check if user re-authenticated via Claude Code
+            // Claude Code obtained fresher credentials of its own (re-auth or its own
+            // refresh) — adopt its pair and drop our shadow. Compared on expiresAt
+            // because a refresh-token mismatch alone can't tell "Claude Code is
+            // fresher" apart from "our shadow is fresher" (the pre-1.2 bug threw away
+            // the only valid credentials in that case).
             if let primary = try? keychain.readClaudeCredentials(),
-               shadow.refreshToken != primary.refreshToken {
-                // User ran `claude auth login` — discard stale shadow
+               primary.expiresAt > shadow.expiresAt {
                 keychain.deleteShadowCredentials()
-                logger.info("User re-authenticated via Claude Code — discarding shadow credentials")
-                return .success(primary)
+                logger.info("Claude Code has newer credentials — adopting them, discarding shadow")
+                return .success(CredentialSet(credentials: primary, source: .claudeCode))
             }
-            if !shadow.isExpired {
-                logger.info("Using shadow credentials (not expired)")
-                return .success(shadow)
-            }
-            // Shadow exists but is expired — return it anyway so caller has refreshToken
-            logger.info("Shadow credentials expired — returning for refresh attempt")
-            return .success(shadow)
+            return .success(CredentialSet(credentials: shadow, source: .shadow))
         }
 
-        // No shadow — read from Claude Code's Keychain item
+        // No shadow — read from Claude Code's keychain item
         do {
             let credentials = try keychain.readClaudeCredentials()
             logger.info("Credentials loaded from Claude Code Keychain")
-            return .success(credentials)
+            return .success(CredentialSet(credentials: credentials, source: .claudeCode))
         } catch let appError as AppError {
             logger.error("Keychain read error: \(appError.localizedDescription)")
             return .failure(appError)
