@@ -28,6 +28,38 @@ final class ProviderLogicTests: XCTestCase {
         XCTAssertNil(usage.secondaryWindow)
     }
 
+    // MARK: - Codex window labels (duration-derived, not position-derived)
+
+    private func codexWindow(seconds: Int) -> CodexUsage.Window {
+        let json = """
+        {"used_percent":10,"limit_window_seconds":\(seconds),"reset_after_seconds":60,"reset_at":9999999999}
+        """
+        return try! JSONDecoder().decode(CodexUsage.Window.self, from: Data(json.utf8))
+    }
+
+    func testCodexWindowLabelsMatchCodexDurationBuckets() {
+        XCTAssertEqual(codexWindow(seconds: 18_000).windowLabel, "5-hour window")
+        XCTAssertEqual(codexWindow(seconds: 86_400).windowLabel, "Daily window")
+        XCTAssertEqual(codexWindow(seconds: 604_800).windowLabel, "Weekly window")
+        XCTAssertEqual(codexWindow(seconds: 2_592_000).windowLabel, "Monthly window")
+    }
+
+    func testCodexWindowLabelsTolerateFivePercentSkew() {
+        // codex treats ±5% as the same bucket
+        XCTAssertEqual(codexWindow(seconds: Int(Double(5 * 3600) * 1.04)).windowLabel, "5-hour window")
+        XCTAssertEqual(codexWindow(seconds: Int(Double(7 * 86_400) * 0.96)).windowLabel, "Weekly window")
+    }
+
+    func testCodexWindowLabelHumanizesUnknownDurations() {
+        XCTAssertEqual(codexWindow(seconds: 3 * 3600).windowLabel, "3-hour window")
+        XCTAssertEqual(codexWindow(seconds: 2 * 86_400).windowLabel, "2-day window")
+    }
+
+    func testCodexWeeklyWindowGetsDateResetDisplay() {
+        XCTAssertFalse(codexWindow(seconds: 5 * 3600).isWeeklyOrLonger)
+        XCTAssertTrue(codexWindow(seconds: 7 * 86_400).isWeeklyOrLonger)
+    }
+
     // MARK: - OpenRouter decoding (/api/v1/key)
 
     func testOpenRouterKeyInfoDecodingWithLimit() throws {

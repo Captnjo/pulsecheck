@@ -50,11 +50,11 @@ struct UsagePanelView: View {
     private func codexTab() -> some View {
         if let usage = store.codexUsage {
             if let primary = usage.primaryWindow {
-                codexWindowSection(title: "Daily (5h window)", window: primary, showDate: false)
+                codexWindowSection(window: primary)
                 Divider()
             }
             if let secondary = usage.secondaryWindow {
-                codexWindowSection(title: "Weekly (7-day window)", window: secondary, showDate: true)
+                codexWindowSection(window: secondary)
                 Divider()
             }
             if usage.primaryWindow == nil && usage.secondaryWindow == nil {
@@ -74,10 +74,10 @@ struct UsagePanelView: View {
         return store.codexError ?? .providerUnavailable("Codex")
     }
 
-    private func codexWindowSection(title: String, window: CodexUsage.Window, showDate: Bool) -> some View {
+    private func codexWindowSection(window: CodexUsage.Window) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(title)
+                Text(window.windowLabel)
                     .font(.headline)
                 Spacer()
                 Text(window.displayString)
@@ -87,7 +87,7 @@ struct UsagePanelView: View {
             ProgressView(value: Double(window.usedPercent) / 100.0)
                 .progressViewStyle(.linear)
                 .tint(Color(red: 0.55, green: 0.55, blue: 0.60))
-            Text(codexResetText(window: window, showDate: showDate))
+            Text(codexResetText(window: window, showDate: window.isWeeklyOrLonger))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

@@ -40,6 +40,30 @@ struct CodexUsage: Decodable {
         }
 
         var isWeekly: Bool { limitWindowSeconds >= 7 * 24 * 3600 }
+
+        /// Label derived from the window's actual length, mirroring codex's own
+        /// `get_limits_duration` (±5% tolerance) — OpenAI reassigns what primary/
+        /// secondary mean per plan, so position must never imply a duration.
+        var windowLabel: String {
+            let minutes = Double(limitWindowSeconds) / 60.0
+            func isApprox(_ expectedMinutes: Double) -> Bool {
+                minutes >= expectedMinutes * 0.95 && minutes <= expectedMinutes * 1.05
+            }
+            let hour = 60.0, day = 24 * hour
+            if isApprox(5 * hour) { return "5-hour window" }
+            if isApprox(day) { return "Daily window" }
+            if isApprox(7 * day) { return "Weekly window" }
+            if isApprox(30 * day) { return "Monthly window" }
+            if isApprox(365 * day) { return "Annual window" }
+            // Unknown length — humanize the raw duration
+            let days = limitWindowSeconds / 86400
+            if days >= 1 { return "\(days)-day window" }
+            let hours = limitWindowSeconds / 3600
+            return "\(hours)-hour window"
+        }
+
+        /// Weekly windows get an absolute reset date; shorter ones get a countdown.
+        var isWeeklyOrLonger: Bool { limitWindowSeconds >= 7 * 24 * 3600 }
     }
 
     struct RateLimit: Decodable {
