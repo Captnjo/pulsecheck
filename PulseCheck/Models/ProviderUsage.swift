@@ -15,6 +15,14 @@ enum Provider: String, CaseIterable, Identifiable {
         case .openRouter: return "OpenRouter"
         }
     }
+
+    var iconName: String {
+        switch self {
+        case .claude: return "sparkles"
+        case .codex: return "chevron.left.forwardslash.chevron.right"
+        case .openRouter: return "router"
+        }
+    }
 }
 
 // MARK: - Codex (ChatGPT OAuth usage)

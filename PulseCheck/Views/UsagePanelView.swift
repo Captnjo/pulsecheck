@@ -9,7 +9,8 @@ struct UsagePanelView: View {
         VStack(alignment: .leading, spacing: 12) {
             Picker("Provider", selection: $selectedProvider) {
                 ForEach(Provider.allCases) { provider in
-                    Text(provider.displayName).tag(provider)
+                    Label(provider.displayName, systemImage: provider.iconName)
+                        .tag(provider)
                 }
             }
             .pickerStyle(.segmented)
