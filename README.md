@@ -56,7 +56,7 @@ brew install --cask captnjo/tap/pulsecheck
 
 ### Option B: Download DMG
 
-**[Download PulseCheck-1.3.1.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.3.1/PulseCheck-1.3.1.dmg)**
+**[Download PulseCheck-1.3.2.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.3.2/PulseCheck-1.3.2.dmg)**
 
 1. Open the downloaded DMG
 2. Drag **PulseCheck** into your **Applications** folder
@@ -106,6 +106,16 @@ PulseCheck reads each tool's existing credentials and polls its usage endpoint e
 **Token safety.** Refresh tokens rotate on every use — whoever consumes one invalidates the copy the other holder has. PulseCheck therefore never sends another tool's refresh token anywhere. It refreshes only credentials it obtained through its own earlier refresh calls (stored in its own Keychain item, `PulseCheck-claude-credentials`), and treats codex/opencode credentials as strictly read-only. If a provider's token goes stale, its tab shows **"Auth expired"** and it re-syncs the next time that tool runs.
 
 If the Claude tab shows "not logged in", run `claude auth login` in your terminal.
+
+### Keychain prompts
+
+On first launch PulseCheck asks once for access to Claude Code's keychain item — click **Always Allow** (not *Allow*, which grants a single read). PulseCheck then only touches Claude Code's item when it has no working credentials of its own (first launch, or after its own token lineage expires), so prompts should be rare.
+
+Two things can make a prompt reappear:
+- **App updates** — grants are bound to the app's code signature; this build is ad-hoc signed, so each new version asks once more. Click **Always Allow** again. A stable Developer ID signature removes this.
+- **Manual grant** — you can pre-grant standing access in **Keychain Access → login → "Claude Code-credentials" → Access Control → "Always allow access by these applications" → add PulseCheck**.
+
+The Codex and OpenRouter tabs never trigger Keychain prompts — they read plain files.
 
 ## Architecture
 

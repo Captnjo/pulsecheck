@@ -21,19 +21,26 @@ struct CredentialsService {
     private let keychain = KeychainService()
 
     func loadCredentials() async -> Result<CredentialSet, AppError> {
-        // Shadow-first: prefer PulseCheck's own refreshed credentials
+        // Shadow-first: prefer PulseCheck's own refreshed credentials. While the
+        // shadow is valid we deliberately do NOT read Claude Code's keychain item —
+        // every read risks a Keychain access prompt, and our own token working is
+        // proof we don't need Claude Code's. Claude's item is consulted only when
+        // the shadow is missing or expired (below) or on a 401 (UsageStore).
         if let shadow = try? keychain.readShadowCredentials() {
-            // Claude Code obtained fresher credentials of its own (re-auth or its own
-            // refresh) — adopt its pair and drop our shadow. Compared on expiresAt
+            if !shadow.isExpired {
+                return .success(CredentialSet(credentials: shadow, source: .shadow))
+            }
+            // Shadow expired: before refreshing, see if Claude Code holds newer
+            // credentials (re-auth or its own refresh). Compared on expiresAt
             // because a refresh-token mismatch alone can't tell "Claude Code is
-            // fresher" apart from "our shadow is fresher" (the pre-1.2 bug threw away
-            // the only valid credentials in that case).
+            // fresher" apart from "our shadow is fresher".
             if let primary = try? keychain.readClaudeCredentials(),
                primary.expiresAt > shadow.expiresAt {
                 keychain.deleteShadowCredentials()
                 logger.info("Claude Code has newer credentials — adopting them, discarding shadow")
                 return .success(CredentialSet(credentials: primary, source: .claudeCode))
             }
+            logger.info("Shadow credentials expired — returning for refresh attempt")
             return .success(CredentialSet(credentials: shadow, source: .shadow))
         }
 
