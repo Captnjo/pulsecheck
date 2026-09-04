@@ -20,6 +20,39 @@ struct UsageResponse: Decodable {
         case iguanaNecktie = "iguana_necktie"
         case extraUsage = "extra_usage"
     }
+
+    /// Percent-scale normalization: the API's convention is undocumented and has
+    /// wobbled (0–100 vs 0–1). If every value in the payload is ≤ 1, treat the
+    /// payload as fractions and rescale — mirroring Omarchy's scanner heuristic.
+    /// `utilization` remains the RAW decoded value; read it via `displayPercent`.
+    func normalized() -> UsageResponse {
+        let raw: [Double?] = [
+            fiveHour?.utilization, sevenDay?.utilization, sevenDayOauthApps?.utilization,
+            sevenDayOpus?.utilization, sevenDaySonnet?.utilization, sevenDayCowork?.utilization,
+            iguanaNecktie?.utilization,
+        ].map { $0.flatMap { Double($0) } }
+        let values = raw.compactMap { $0 }
+        guard !values.isEmpty, values.allSatisfy({ $0 <= 1.0 }) else { return self }
+
+        func scaled(_ p: UsagePeriod?) -> UsagePeriod? {
+            guard let p else { return nil }
+            return UsagePeriod(utilization: p.utilization * 100, resetsAt: p.resetsAt)
+        }
+        return UsageResponse(
+            fiveHour: scaled(fiveHour),
+            sevenDay: scaled(sevenDay),
+            sevenDayOauthApps: scaled(sevenDayOauthApps),
+            sevenDayOpus: scaled(sevenDayOpus),
+            sevenDaySonnet: scaled(sevenDaySonnet),
+            sevenDayCowork: scaled(sevenDayCowork),
+            iguanaNecktie: scaled(iguanaNecktie),
+            extraUsage: extraUsage
+        )
+    }
+
+    /// Weekly bucket that isolates Claude Code usage from other Anthropic usage
+    /// (the generic seven_day bucket includes everything).
+    var effectiveSevenDay: UsagePeriod? { sevenDayOauthApps ?? sevenDay }
 }
 
 struct UsagePeriod: Decodable {
@@ -48,4 +81,13 @@ struct ExtraUsage: Decodable {
         case usedCredits = "used_credits"
         case utilization
     }
+}
+
+/// Errors, classified by what the app should DO next — the Omarchy distinction:
+/// a transport failure reached no server (retry soon, the route may be back),
+/// while a server rejection means stop pestering and wait.
+enum UsageFetchOutcome {
+    case success(UsageResponse)
+    case transportDown(AppError)          // no server reached — retry sooner
+    case serverRejected(AppError)         // 401/429/5xx — respect backoff
 }

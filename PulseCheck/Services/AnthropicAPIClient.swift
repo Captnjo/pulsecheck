@@ -22,7 +22,7 @@ struct AnthropicAPIClient {
 
             switch httpResponse.statusCode {
             case 200:
-                let usage = try JSONDecoder().decode(UsageResponse.self, from: data)
+                let usage = try JSONDecoder().decode(UsageResponse.self, from: data).normalized()
                 return .success(usage)
             case 401:
                 return .failure(.apiUnauthorized)
@@ -50,5 +50,12 @@ struct AnthropicAPIClient {
             logger.error("Network error: \(error.localizedDescription)")
             return .failure(.networkError(error))
         }
+    }
+
+    /// Classify a failure for retry policy: transport failures (nothing reached —
+    /// DNS, no route, timeout) warrant a sooner retry than server rejections.
+    static func isTransportFailure(_ error: AppError) -> Bool {
+        if case .networkError = error { return true }
+        return false
     }
 }

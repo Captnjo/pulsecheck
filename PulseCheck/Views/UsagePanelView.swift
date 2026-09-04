@@ -37,12 +37,24 @@ struct UsagePanelView: View {
     @ViewBuilder
     private func claudeTab() -> some View {
         if let response = store.usageResponse {
-            usageSection(title: "Daily (5h window)", period: response.fiveHour, showDate: false)
+            if let notice = store.usageStaleNotice {
+                Label(notice, systemImage: "clock.arrow.circlepath")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+            usageSection(title: "Daily (5h window)", period: response.fiveHour, showDate: false, projection: claudeProjection)
             Divider()
-            usageSection(title: "Weekly (7-day window)", period: response.sevenDay, showDate: true)
+            usageSection(title: "Weekly (7-day window)", period: response.effectiveSevenDay, showDate: true)
         } else {
             errorBlock(store.usageError ?? .providerNotAuthenticated("Claude Code"))
         }
+    }
+
+    /// Burn-rate caption + projected end-of-window value, when a trend exists.
+    private var claudeProjection: (caption: String, projected: Double)? {
+        guard let projected = store.projectedFiveHourAtReset() else { return nil }
+        let caption = store.burnRateCaption() ?? "on track for ~\(Int(projected.rounded()))% by reset"
+        return (caption, projected)
     }
 
     // MARK: - Codex
@@ -87,7 +99,7 @@ struct UsagePanelView: View {
             }
             ProgressView(value: Double(window.usedPercent) / 100.0)
                 .progressViewStyle(.linear)
-                .tint(Color(red: 0.55, green: 0.55, blue: 0.60))
+                .tint(Self.barTint(for: Double(window.usedPercent)))
             Text(codexResetText(window: window, showDate: window.isWeeklyOrLonger))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -133,7 +145,7 @@ struct UsagePanelView: View {
                     }
                     ProgressView(value: (info.limitUtilization ?? 0) / 100.0)
                         .progressViewStyle(.linear)
-                        .tint(Color(red: 0.40, green: 0.55, blue: 0.75))
+                        .tint(Self.barTint(for: info.limitUtilization ?? 0))
                 }
             }
         } else {
@@ -170,7 +182,7 @@ struct UsagePanelView: View {
     }
 
     @ViewBuilder
-    private func usageSection(title: String, period: UsagePeriod?, showDate: Bool) -> some View {
+    private func usageSection(title: String, period: UsagePeriod?, showDate: Bool, projection: (caption: String, projected: Double)? = nil) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(title)
@@ -182,7 +194,12 @@ struct UsagePanelView: View {
             }
             ProgressView(value: period != nil ? period!.utilization / 100.0 : 0.0)
                 .progressViewStyle(.linear)
-                .tint(Color(red: 0.83, green: 0.65, blue: 0.45))
+                .tint(Self.barTint(for: projection?.projected ?? period?.utilization ?? 0))
+            if let projection {
+                Text(projection.caption)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
             if let period = period {
                 Text(showDate ? resetDateString(from: period.resetsAt) : resetCountdown(from: period.resetsAt))
                     .font(.caption)
@@ -192,6 +209,16 @@ struct UsagePanelView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+
+    /// Adaptive bar color: tint reflects the PROJECTED end-of-window value when
+    /// available (burn rate can turn the bar amber before the number does).
+    static func barTint(for projectedPercent: Double) -> Color {
+        switch UsageSeverity.forPercent(projectedPercent) {
+        case .normal: return Color(red: 0.35, green: 0.65, blue: 0.40)   // green
+        case .elevated: return Color(red: 0.90, green: 0.62, blue: 0.20) // amber
+        case .high: return Color(red: 0.85, green: 0.28, blue: 0.25)     // red
         }
     }
 

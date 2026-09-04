@@ -15,6 +15,10 @@ class UsageStore {
     }
     var usageResponse: UsageResponse?
     var usageError: AppError?
+    /// Non-blocking status text shown alongside stale data (degrade-don't-blind).
+    var usageStaleNotice: String?
+    /// Set when a transport failure suggests the next poll may succeed sooner.
+    var retryAdvised: Bool = false
     var isFetching: Bool = false
     var lastFetchDate: Date?
 
@@ -43,6 +47,12 @@ class UsageStore {
     /// repeated rejected calls trip Anthropic's abuse limiter (the 429 storm of
     /// 2026-09-04). Skip API calls for a known-rejected token.
     private var rejectedAccessToken: String?
+    /// Burn-rate history per display window (five-hour tracked; weekly moves too
+    /// slowly to project meaningfully).
+    private var burnRate = BurnRateModel()
+    /// Last fetch attempt (success or fail) — drives the manual-refresh spam guard.
+    private var lastFetchAttempt: Date = .distantPast
+    private let refreshReuseInterval: TimeInterval = 15
     var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
@@ -81,6 +91,13 @@ class UsageStore {
     }
 
     func manualRefresh() async {
+        // Spam guard (Omarchy pattern): repeated clicks reuse the recent result
+        // instead of firing a request per click.
+        guard Date().timeIntervalSince(lastFetchAttempt) >= refreshReuseInterval else {
+            logger.debug("manualRefresh skipped — fetched within reuse window")
+            return
+        }
+        lastFetchAttempt = Date()
         pollingTask?.cancel()
         pollingTask = nil
         await fetchUsage()
@@ -203,20 +220,88 @@ class UsageStore {
         )
     }
 
+    // MARK: - Burn-rate projection (Claude five-hour window)
+
+    /// Projected utilization at window reset, or nil when no trend is provable.
+    func projectedFiveHourAtReset() -> Double? {
+        guard let current = usageResponse?.fiveHour?.utilization,
+              let resetsAt = usageResponse?.fiveHour?.resetsAt,
+              let resetDate = parseISO(resetsAt) else { return nil }
+        return burnRate.projectedPercentAtReset(now: Date(), resetAt: resetDate, current: current)
+    }
+
+    /// Human caption like "burning fast — out in ~1h20m", or nil when steady.
+    func burnRateCaption() -> String? {
+        guard let current = usageResponse?.fiveHour?.utilization else { return nil }
+        guard let minutes = burnRate.minutesUntilFull(now: Date(), current: current) else { return nil }
+        let hours = Int(minutes) / 60
+        let mins = Int(minutes) % 60
+        if hours > 0 {
+            return "burning fast — out in ~\(hours)h\(mins)m at this rate"
+        }
+        return "burning fast — out in ~\(mins)m at this rate"
+    }
+
+    private func parseISO(_ iso: String) -> Date? {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = f.date(from: iso) { return d }
+        f.formatOptions = [.withInternetDateTime]
+        return f.date(from: iso)
+    }
+
     private func applySuccess(_ response: UsageResponse) {
         self.usageResponse = response
         self.lastFetchDate = Date()
         self.usageError = nil
+        self.usageStaleNotice = nil
         self.backoffSeconds = 60
         self.rejectedAccessToken = nil
+        if let fiveHour = response.fiveHour {
+            burnRate.record(fiveHour.utilization)
+        }
         updateTitle()
+    }
+
+    /// Keep the last good data visible with an honest status line, instead of
+    /// wiping it (Omarchy's degrade-don't-blind pattern). Stale data is dropped
+    /// only when its window has reset — numbers from a finished window are lies.
+    private func degradeWithLastError(_ error: AppError) {
+        self.usageError = error
+        self.usageStaleNotice = Self.staleNotice(for: error)
+        // Transport failure → the network may be back any second; retry sooner.
+        // Server rejections keep/raise backoff.
+        if AnthropicAPIClient.isTransportFailure(error) {
+            self.backoffSeconds = 30
+            self.retryAdvised = true
+        } else {
+            self.backoffSeconds = 60
+        }
+        updateTitle()
+    }
+
+    private static func staleNotice(for error: AppError) -> String? {
+        switch error {
+        case .rateLimited(let retryAfter):
+            var text = "Anthropic is rate-limiting checks right now"
+            if let retryAfter { text += " (retrying in ~\(retryAfter)s)" }
+            return text + " — showing last known usage."
+        case .networkError:
+            return "Can't reach Anthropic — showing last known usage."
+        case .apiError(let code, _):
+            return "Anthropic returned error \(code) — showing last known usage."
+        default:
+            return nil
+        }
     }
 
     private func setAuthExpired() {
         self.credentials = nil
         self.credentialSource = nil
         self.usageError = .apiUnauthorized
-        self.usageResponse = nil
+        // Keep last known usage visible with an honest notice; the numbers go
+        // stale but are better than blinding the panel (Omarchy pattern).
+        self.usageStaleNotice = "Auth expired — showing last known usage until Claude Code runs again."
         self.backoffSeconds = 60
         updateTitle()
     }
@@ -232,7 +317,7 @@ class UsageStore {
             case .rateLimited(let retryAfter):
                 // Rate limited — keep last good data, back off. Honor Retry-After
                 // when the server sends one (capped at 30 min).
-                self.usageError = error
+                degradeWithLastError(error)
                 var backoff = min(backoffSeconds * 2, 600)
                 if let retryAfter {
                     backoff = max(backoff, min(retryAfter, 1800))
@@ -240,10 +325,7 @@ class UsageStore {
                 self.backoffSeconds = backoff
                 logger.warning("Rate limited (429) — backing off to \(self.backoffSeconds)s")
             default:
-                self.usageError = error
-                self.usageResponse = nil
-                self.backoffSeconds = 60
-                updateTitle()
+                degradeWithLastError(error)
             }
             logger.error("API call failed: \(error.localizedDescription)")
         }
@@ -299,17 +381,19 @@ class UsageStore {
                 applySuccess(response)
             case .failure(let retryError):
                 if case .rateLimited(let retryAfter) = retryError {
-                    self.usageError = retryError
+                    degradeWithLastError(retryError)
                     var backoff = min(backoffSeconds * 2, 600)
                     if let retryAfter {
                         backoff = max(backoff, min(retryAfter, 1800))
                     }
                     self.backoffSeconds = backoff
-                } else {
+                } else if case .apiUnauthorized = retryError {
                     self.usageError = retryError
-                    self.usageResponse = nil
+                    self.usageStaleNotice = "Auth expired — showing last known usage until Claude Code runs again."
                     self.backoffSeconds = 60
                     updateTitle()
+                } else {
+                    degradeWithLastError(retryError)
                 }
                 logger.error("Retry after refresh failed: \(retryError.localizedDescription)")
             }

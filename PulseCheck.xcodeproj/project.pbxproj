@@ -22,8 +22,10 @@
 		A1000067 /* ProviderUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000077 /* ProviderUsage.swift */; };
 		A1000068 /* CodexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000078 /* CodexService.swift */; };
 		A1000069 /* OpenRouterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000079 /* OpenRouterService.swift */; };
+		A1000083 /* BurnRateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000082 /* BurnRateModel.swift */; };
 		B2000001 /* CredentialLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000011 /* CredentialLogicTests.swift */; };
 		B2000003 /* ProviderLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000013 /* ProviderLogicTests.swift */; };
+		B2000005 /* BurnRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000015 /* BurnRateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,9 +57,11 @@
 		A1000077 /* ProviderUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProviderUsage.swift; path = PulseCheck/Models/ProviderUsage.swift; sourceTree = "<group>"; };
 		A1000078 /* CodexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CodexService.swift; path = PulseCheck/Services/CodexService.swift; sourceTree = "<group>"; };
 		A1000079 /* OpenRouterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OpenRouterService.swift; path = PulseCheck/Services/OpenRouterService.swift; sourceTree = "<group>"; };
+		A1000082 /* BurnRateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BurnRateModel.swift; path = PulseCheck/Models/BurnRateModel.swift; sourceTree = "<group>"; };
 		B2000010 /* PulseCheckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseCheckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000011 /* CredentialLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialLogicTests.swift; sourceTree = "<group>"; };
 		B2000013 /* ProviderLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderLogicTests.swift; sourceTree = "<group>"; };
+		B2000015 /* BurnRateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurnRateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +105,7 @@
 			children = (
 				A1000070 /* AppError.swift */,
 				A1000074 /* UsageResponse.swift */,
+				A1000082 /* BurnRateModel.swift */,
 				A1000077 /* ProviderUsage.swift */,
 			);
 			name = Models;
@@ -159,6 +164,7 @@
 			children = (
 				B2000011 /* CredentialLogicTests.swift */,
 				B2000013 /* ProviderLogicTests.swift */,
+				B2000015 /* BurnRateTests.swift */,
 			);
 			path = PulseCheckTests;
 			sourceTree = "<group>";
@@ -255,6 +261,7 @@
 			files = (
 				B2000001 /* CredentialLogicTests.swift in Sources */,
 				B2000003 /* ProviderLogicTests.swift in Sources */,
+				B2000005 /* BurnRateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +278,7 @@
 				A1000063 /* UsageStore.swift in Sources */,
 				A1000064 /* UsageResponse.swift in Sources */,
 				A1000067 /* ProviderUsage.swift in Sources */,
+				A1000083 /* BurnRateModel.swift in Sources */,
 				A1000065 /* AnthropicAPIClient.swift in Sources */,
 				A1000066 /* TokenRefreshService.swift in Sources */,
 				A1000068 /* CodexService.swift in Sources */,
@@ -424,7 +432,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -450,7 +458,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheck";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -474,7 +482,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheckTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -499,7 +507,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.3.4;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jo.PulseCheckTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
