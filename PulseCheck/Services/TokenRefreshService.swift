@@ -55,6 +55,17 @@ actor TokenRefreshService {
         return try await task.value
     }
 
+    /// A definitive refresh rejection means the lineage is dead (OAuth
+    /// invalid_grant): 400/401 from the token endpoint. Anything else — 429,
+    /// 5xx, network, non-HTTP — is transient and must NOT cost us the shadow
+    /// lineage (the Sept-4 storm deleted it on a mere 429; never again).
+    static func isDefinitiveRefreshRejection(_ error: Error) -> Bool {
+        if case AppError.tokenRefreshFailed(let status, _) = error {
+            return status == 400 || status == 401
+        }
+        return false
+    }
+
     /// Percent-encodes a value for an application/x-www-form-urlencoded body.
     /// Internal (not private) so unit tests can cover it.
     static func formEncode(_ value: String) -> String {

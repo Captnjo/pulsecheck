@@ -49,6 +49,10 @@ class UsageStore {
     private var burnRate = BurnRateModel()
     /// Last fetch attempt (success or fail) — drives the manual-refresh spam guard.
     private var lastFetchAttempt: Date = .distantPast
+    /// Throttle for shadow-refresh retries launched from the rejected-token path
+    /// (a transient refresh failure there leaves API calls skipped, so the retry
+    /// must be driven by the poll loop itself).
+    private var lastShadowRefreshAttempt: Date = .distantPast
     private let refreshReuseInterval: TimeInterval = 15
 
     func loadCredentials() async {
@@ -143,9 +147,18 @@ class UsageStore {
                 rejectedAccessToken = nil
             } else {
                 logger.debug("Skipping API call — token still rejected; awaiting keychain change")
-                await withTaskGroup(of: Void.self) { group in
-                    group.addTask { await self.fetchCodexUsage() }
-                    group.addTask { await self.fetchOpenRouterUsage() }
+                // If our own shadow lineage is expired, the recovery action IS the
+                // self-refresh (the keychain won't change on its own) — retry it on
+                // a 5-min throttle. attemptShadowRefresh fetches usage on success.
+                if credentialSource == .shadow,
+                   credentials?.isExpired == true,
+                   Date().timeIntervalSince(lastShadowRefreshAttempt) >= credentialRecheckInterval {
+                    await attemptShadowRefresh()
+                } else {
+                    await withTaskGroup(of: Void.self) { group in
+                        group.addTask { await self.fetchCodexUsage() }
+                        group.addTask { await self.fetchOpenRouterUsage() }
+                    }
                 }
                 return
             }
@@ -345,17 +358,25 @@ class UsageStore {
         }
 
         guard credentialSource == .shadow,
-              let refreshToken = credentials?.refreshToken,
-              !refreshToken.isEmpty else {
+              let shadowToken = credentials?.refreshToken, !shadowToken.isEmpty else {
             // Credentials are Claude Code's (or gone) — nothing safe to refresh with.
             // Claude Code will obtain fresh tokens on its next run; we re-sync then.
             logger.error("401 persists on Claude Code-owned credentials — not consuming its refresh token; showing auth-expired")
             setAuthExpired()
             return
         }
+        await attemptShadowRefresh()
+    }
 
+    /// Refresh PulseCheck's OWN credential lineage (shadow) and retry the usage
+    /// call. Never called with Claude Code-owned tokens (see SAFETY RULE above).
+    /// Transient refresh failures keep the lineage; only a definitive OAuth
+    /// invalid_grant drops it.
+    private func attemptShadowRefresh() async {
+        lastShadowRefreshAttempt = Date()
+        guard let refreshToken = credentials?.refreshToken, !refreshToken.isEmpty else { return }
         do {
-            logger.info("401 persists — refreshing PulseCheck-owned credentials")
+            logger.info("Refreshing PulseCheck-owned credentials")
             let newCreds = try await tokenRefreshService.refresh(
                 using: refreshToken,
                 preservingScopes: credentials?.scopes ?? []
@@ -379,6 +400,10 @@ class UsageStore {
                     }
                     self.backoffSeconds = backoff
                 } else if case .apiUnauthorized = retryError {
+                    // A freshly-issued token rejected by the usage endpoint — do NOT
+                    // re-refresh (that would burn the lineage in a rotation loop);
+                    // mark rejected and wait for Claude Code to rotate its stores.
+                    rejectedAccessToken = credentials?.accessToken
                     self.usageError = retryError
                     self.usageStaleNotice = "Auth expired — showing last known usage until Claude Code runs again."
                     self.backoffSeconds = 60
@@ -388,9 +413,19 @@ class UsageStore {
                 logger.error("Retry after refresh failed: \(retryError.localizedDescription)")
             }
         } catch {
-            logger.error("Token refresh failed: \(error.localizedDescription)")
-            keychain.deleteShadowCredentials()
-            setAuthExpired()
+            if TokenRefreshService.isDefinitiveRefreshRejection(error) {
+                logger.error("Token refresh rejected definitively — dropping shadow lineage")
+                keychain.deleteShadowCredentials()
+                setAuthExpired()
+            } else {
+                // Transient (429/5xx/network): the shadow lineage is still our best
+                // asset — keep it and retry on a later poll.
+                logger.error("Token refresh failed transiently — keeping shadow lineage for retry: \(error.localizedDescription)")
+                let appErr = error as? AppError ?? .networkError(error)
+                usageError = appErr
+                usageStaleNotice = "Token refresh hit a transient error — retrying automatically."
+                backoffSeconds = 300
+            }
         }
     }
 }

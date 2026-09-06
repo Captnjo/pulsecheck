@@ -53,8 +53,43 @@ struct KeychainService {
         }
     }
 
-    func readShadowCredentials() throws -> ClaudeOAuthCredentials {
-        let query: [String: Any] = [
+    /// Claude Code's credentials file (~/.claude/.credentials.json), the store the
+    /// CLI writes on Linux and newer macOS builds. Respects CLAUDE_CONFIG_DIR.
+    static var credentialsFileURL: URL {
+        let env = ProcessInfo.processInfo.environment["CLAUDE_CONFIG_DIR"]
+        let base: URL
+        if let env, !env.isEmpty {
+            base = URL(fileURLWithPath: (env as NSString).expandingTildeInPath)
+        } else {
+            base = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude")
+        }
+        return base.appendingPathComponent(".credentials.json")
+    }
+
+    /// Reads the credentials file. Accepts both the wrapped shape
+    /// ({"claudeAiOauth": {...}}) and a bare credentials object.
+    func readCredentialsFile(at url: URL) throws -> ClaudeOAuthCredentials {
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch let e as NSError where e.code == NSFileReadNoSuchFileError {
+            throw AppError.keychainItemNotFound
+        }
+        if let wrapper = try? JSONDecoder().decode(KeychainWrapper.self, from: data) {
+            return wrapper.claudeAiOauth
+        }
+        do {
+            return try JSONDecoder().decode(ClaudeOAuthCredentials.self, from: data)
+        } catch {
+            throw AppError.keychainDataMalformed
+        }
+    }
+
+    func readFileCredentials() throws -> ClaudeOAuthCredentials {
+        try readCredentialsFile(at: Self.credentialsFileURL)
+    }
+
+    func readShadowCredentials() throws -> ClaudeOAuthCredentials {        let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Self.shadowServiceName,
             kSecAttrAccount as String: "pulsecheck",
