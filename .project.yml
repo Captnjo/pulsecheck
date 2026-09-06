@@ -1,0 +1,14 @@
+summary: >
+  PulseCheck — macOS menu bar app monitoring AI coding tool usage limits.
+  Tabbed panel for Claude Code (Keychain OAuth), Codex (ChatGPT plan windows)
+  and OpenRouter (via opencode), with worst-of menu bar title, burn-rate
+  projection, and token-safe credentials (never consumes another tool's
+  refresh token). Formerly "Claude Mac Widget".
+status: active
+handoff: HANDOFF.md
+stack: Swift 6 / SwiftUI menu bar app (NSStatusItem + NSPopover), no external deps, XCTest (37 tests), ad-hoc signed DMG via scripts/build-dmg.sh
+next_steps:
+  - Developer ID signing + notarization (needs Jo's Apple Developer account decision) to stop per-release Keychain re-prompts
+  - Optional: OpenRouter /credits + /activity endpoints for management keys (balance, spend charts)
+  - Codex tab self-heals once Jo runs codex (stale token is expected, read-only by design)
+test: xcodebuild -project PulseCheck.xcodeproj -scheme PulseCheck -destination 'platform=macOS' test

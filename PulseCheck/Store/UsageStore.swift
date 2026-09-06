@@ -10,9 +10,6 @@ class UsageStore {
     var credentials: ClaudeOAuthCredentials?
     private(set) var credentialSource: CredentialSource?
     var credentialError: AppError?
-    var menuBarTitle: String = "—%" {
-        didSet { onTitleChanged?(menuBarTitle) }
-    }
     var usageResponse: UsageResponse?
     var usageError: AppError?
     /// Non-blocking status text shown alongside stale data (degrade-don't-blind).
@@ -53,7 +50,6 @@ class UsageStore {
     /// Last fetch attempt (success or fail) — drives the manual-refresh spam guard.
     private var lastFetchAttempt: Date = .distantPast
     private let refreshReuseInterval: TimeInterval = 15
-    var onTitleChanged: ((String) -> Void)?
 
     func loadCredentials() async {
         let result = await credentialsService.loadCredentials()
@@ -70,7 +66,6 @@ class UsageStore {
             self.credentialSource = nil
             self.credentialError = .keychainItemNotFound
             self.usageError = .providerNotAuthenticated("Claude Code")
-            updateTitle()
             logger.error("No Claude Code credentials available from Keychain")
         }
     }
@@ -135,17 +130,29 @@ class UsageStore {
         }
         if creds.accessToken == rejectedAccessToken {
             // Same token already rejected server-side — an API call is useless and
-            // risks tripping the rate limiter again. Wait for Claude Code to rotate
-            // the keychain (detected next poll via the throttled re-read above).
-            logger.debug("Skipping API call — token previously rejected; awaiting keychain change")
-            await withTaskGroup(of: Void.self) { group in
-                group.addTask { await self.fetchCodexUsage() }
-                group.addTask { await self.fetchOpenRouterUsage() }
+            // risks tripping the rate limiter again. But the keychain MUST still be
+            // re-read on a throttle: a token can be revoked server-side while still
+            // unexpired locally, and if we stopped re-reading here we'd never
+            // notice Claude Code rotating the keychain (the 1.4.1 stuck-state bug).
+            if Date().timeIntervalSince(lastCredentialCheck) >= credentialRecheckInterval {
+                lastCredentialCheck = Date()
+                await loadCredentials()
             }
-            return
+            if let fresh = credentials, fresh.accessToken != rejectedAccessToken {
+                logger.info("Keychain rotated past rejected token — resuming API calls")
+                rejectedAccessToken = nil
+            } else {
+                logger.debug("Skipping API call — token still rejected; awaiting keychain change")
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask { await self.fetchCodexUsage() }
+                    group.addTask { await self.fetchOpenRouterUsage() }
+                }
+                return
+            }
         }
-        let result = await apiClient.fetchUsage(accessToken: creds.accessToken)
-        await handleUsageResult(result, using: creds)
+        guard let currentCreds = credentials else { return }
+        let result = await apiClient.fetchUsage(accessToken: currentCreds.accessToken)
+        await handleUsageResult(result, using: currentCreds)
 
         // Codex + OpenRouter in parallel; each is independent of Claude's state
         await withTaskGroup(of: Void.self) { group in
@@ -180,7 +187,6 @@ class UsageStore {
                 codexError = error
             }
         }
-        updateTitle()
     }
 
     private func fetchOpenRouterUsage() async {
@@ -205,20 +211,8 @@ class UsageStore {
                 openRouterError = error
             }
         }
-        updateTitle()
     }
 
-    /// Menu bar title = worst-of across providers (most-constrained %).
-    private func updateTitle() {
-        let claude = usageResponse?.fiveHour?.utilization
-        let codex = codexUsage?.primaryWindow.map { Double($0.usedPercent) }
-        let openRouter = openRouterUsage?.limitUtilization
-        menuBarTitle = WorstOf.title(
-            claudeFiveHour: claude,
-            codexPrimary: codex,
-            openRouterLimit: openRouter
-        )
-    }
 
     // MARK: - Burn-rate projection (Claude five-hour window)
 
@@ -260,7 +254,6 @@ class UsageStore {
         if let fiveHour = response.fiveHour {
             burnRate.record(fiveHour.utilization)
         }
-        updateTitle()
     }
 
     /// Keep the last good data visible with an honest status line, instead of
@@ -277,7 +270,6 @@ class UsageStore {
         } else {
             self.backoffSeconds = 60
         }
-        updateTitle()
     }
 
     private static func staleNotice(for error: AppError) -> String? {
@@ -303,7 +295,6 @@ class UsageStore {
         // stale but are better than blinding the panel (Omarchy pattern).
         self.usageStaleNotice = "Auth expired — showing last known usage until Claude Code runs again."
         self.backoffSeconds = 60
-        updateTitle()
     }
 
     private func handleUsageResult(_ result: Result<UsageResponse, AppError>, using creds: ClaudeOAuthCredentials) async {
@@ -391,7 +382,6 @@ class UsageStore {
                     self.usageError = retryError
                     self.usageStaleNotice = "Auth expired — showing last known usage until Claude Code runs again."
                     self.backoffSeconds = 60
-                    updateTitle()
                 } else {
                     degradeWithLastError(retryError)
                 }

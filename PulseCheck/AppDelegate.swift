@@ -9,12 +9,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         statusBarController = StatusBarController()
         statusBarController.setStore(usageStore)
-        usageStore.onTitleChanged = { [weak self] title in
-            self?.statusBarController.updateTitle(title)
-        }
         Task { @MainActor in
             await usageStore.loadCredentials()
-            statusBarController.updateTitle(usageStore.menuBarTitle)
 
             // Only fetch if we have credentials
             if usageStore.credentials != nil {

@@ -13,7 +13,6 @@ class StatusBarController: NSObject {
         popover.behavior = .transient
 
         if let button = statusItem.button {
-            button.title = "—%"
             let icon = NSImage(named: "PulseCheckIcon")
             icon?.isTemplate = true
             button.image = icon
@@ -22,10 +21,6 @@ class StatusBarController: NSObject {
             button.target = self
             button.sendAction(on: [.leftMouseUp])
         }
-    }
-
-    func updateTitle(_ text: String) {
-        statusItem.button?.title = text
     }
 
     func setStore(_ store: UsageStore) {
