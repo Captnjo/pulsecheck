@@ -31,7 +31,8 @@ struct KeychainService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Self.serviceName,
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
+            kSecReturnAttributes as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll
             // Do NOT include kSecAttrAccount — avoids hardcoding username
         ]
         var result: AnyObject?
@@ -39,18 +40,36 @@ struct KeychainService {
 
         switch status {
         case errSecSuccess:
-            guard let data = result as? Data else {
-                throw AppError.keychainDataMalformed
+            guard let items = result as? [[String: Any]], !items.isEmpty else {
+                throw AppError.keychainItemNotFound
+            }
+            let dataItems = items.compactMap { $0[kSecValueData as String] as? Data }
+            guard !dataItems.isEmpty else {
+                throw AppError.keychainItemNotFound
             }
             // MUST decode through KeychainWrapper — actual JSON is { "claudeAiOauth": { ... } }
-            let wrapper = try JSONDecoder().decode(KeychainWrapper.self, from: data)
-            logger.info("Keychain credentials loaded; expired=\(wrapper.claudeAiOauth.isExpired)")
-            return wrapper.claudeAiOauth
+            let decoder = JSONDecoder()
+            let candidates = dataItems.compactMap {
+                try? decoder.decode(KeychainWrapper.self, from: $0).claudeAiOauth
+            }
+            guard let credentials = Self.freshest(candidates) else {
+                throw AppError.keychainDataMalformed
+            }
+            logger.info("Keychain credentials loaded; expired=\(credentials.isExpired)")
+            return credentials
         case errSecItemNotFound:
             throw AppError.keychainItemNotFound
         default:
             throw AppError.keychainReadFailed(status)
         }
+    }
+
+    static func freshest(_ candidates: [ClaudeOAuthCredentials]) -> ClaudeOAuthCredentials? {
+        guard var freshest = candidates.first else { return nil }
+        for candidate in candidates.dropFirst() where candidate.expiresAt > freshest.expiresAt {
+            freshest = candidate
+        }
+        return freshest
     }
 
     /// Claude Code's credentials file (~/.claude/.credentials.json), the store the
