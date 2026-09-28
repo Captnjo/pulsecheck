@@ -61,4 +61,4 @@ Resume file: None
 
 ## Maintenance release v1.4.4 (2026-09-28)
 
-Claude Keychain query regression repaired: enumerate persistent references, read passwords individually, select freshest. Seven regression tests added (48 total). Release documentation, DMG, GitHub/NAS source and tags, and Homebrew cask are being prepared under the existing debug session.
+Claude Keychain query regression repaired: enumerate persistent references, read passwords individually, select freshest. Seven regression tests added (48 total). Release documentation, DMG, GitHub/NAS source and tags, and Homebrew cask published. Installed via Homebrew; signature/version and live HTTP 200 from all three providers verified.
