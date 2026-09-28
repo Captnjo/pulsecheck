@@ -23,6 +23,17 @@ struct ClaudeOAuthCredentials: Codable {
 }
 
 struct KeychainService {
+    typealias CopyMatching = @Sendable (CFDictionary) -> (OSStatus, AnyObject?)
+    private let copyMatching: CopyMatching
+
+    init(copyMatching: @escaping CopyMatching = { query in
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query, &result)
+        return (status, result)
+    }) {
+        self.copyMatching = copyMatching
+    }
+
     static let serviceName = "Claude Code-credentials"
     static let shadowServiceName = "PulseCheck-claude-credentials"
 
@@ -30,30 +41,61 @@ struct KeychainService {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Self.serviceName,
-            kSecReturnData as String: true,
-            kSecReturnAttributes as String: true,
+            // Password queries cannot combine ReturnData with MatchLimitAll.
+            // Enumerate stable references, then read each item's data separately.
+            kSecReturnPersistentRef as String: true,
             kSecMatchLimit as String: kSecMatchLimitAll
             // Do NOT include kSecAttrAccount — avoids hardcoding username
         ]
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        let (status, result) = copyMatching(query as CFDictionary)
+        logger.info("Claude Keychain read status=\(status, privacy: .public)")
 
         switch status {
         case errSecSuccess:
-            guard let items = result as? [[String: Any]], !items.isEmpty else {
+            guard let references = result as? [Data] else {
+                throw AppError.keychainDataMalformed
+            }
+            guard !references.isEmpty else {
                 throw AppError.keychainItemNotFound
             }
-            let dataItems = items.compactMap { $0[kSecValueData as String] as? Data }
-            guard !dataItems.isEmpty else {
-                throw AppError.keychainItemNotFound
-            }
+            logger.info("Claude Keychain reference count=\(references.count, privacy: .public)")
             // MUST decode through KeychainWrapper — actual JSON is { "claudeAiOauth": { ... } }
             let decoder = JSONDecoder()
-            let candidates = dataItems.compactMap {
-                try? decoder.decode(KeychainWrapper.self, from: $0).claudeAiOauth
+            var candidates: [ClaudeOAuthCredentials] = []
+            var readFailure: OSStatus?
+            var malformed = false
+            for reference in references {
+                let itemQuery: [String: Any] = [
+                    kSecClass as String: kSecClassGenericPassword,
+                    kSecValuePersistentRef as String: reference,
+                    kSecReturnData as String: true,
+                    kSecMatchLimit as String: kSecMatchLimitOne
+                ]
+                let (itemStatus, itemResult) = copyMatching(itemQuery as CFDictionary)
+                guard itemStatus == errSecSuccess else {
+                    logger.info("Claude Keychain item read status=\(itemStatus, privacy: .public)")
+                    // An item can disappear between enumeration and reading.
+                    if itemStatus != errSecItemNotFound, readFailure == nil {
+                        readFailure = itemStatus
+                    }
+                    continue
+                }
+                guard let data = itemResult as? Data else {
+                    malformed = true
+                    continue
+                }
+                do {
+                    candidates.append(try decoder.decode(KeychainWrapper.self, from: data).claudeAiOauth)
+                } catch {
+                    Self.logDecodingFailure(error)
+                    malformed = true
+                }
             }
+            logger.info("Claude Keychain decoded candidate count=\(candidates.count, privacy: .public)")
             guard let credentials = Self.freshest(candidates) else {
-                throw AppError.keychainDataMalformed
+                if let readFailure { throw AppError.keychainReadFailed(readFailure) }
+                if malformed { throw AppError.keychainDataMalformed }
+                throw AppError.keychainItemNotFound
             }
             logger.info("Keychain credentials loaded; expired=\(credentials.isExpired)")
             return credentials
@@ -62,6 +104,32 @@ struct KeychainService {
         default:
             throw AppError.keychainReadFailed(status)
         }
+    }
+
+    /// Log only structural decoding metadata. Error descriptions can contain
+    /// credential values and must never be passed to the logger.
+    private static func logDecodingFailure(_ error: Error) {
+        let category: String
+        let codingPath: [any CodingKey]
+        switch error {
+        case DecodingError.keyNotFound(let key, let context):
+            category = "keyNotFound"
+            codingPath = context.codingPath + [key]
+        case DecodingError.valueNotFound(_, let context):
+            category = "valueNotFound"
+            codingPath = context.codingPath
+        case DecodingError.typeMismatch(_, let context):
+            category = "typeMismatch"
+            codingPath = context.codingPath
+        case DecodingError.dataCorrupted(let context):
+            category = "dataCorrupted"
+            codingPath = context.codingPath
+        default:
+            category = "other"
+            codingPath = []
+        }
+        let path = codingPath.map(\.stringValue).joined(separator: ".")
+        logger.error("Claude Keychain decode failed: category=\(category, privacy: .public), codingPath=\(path, privacy: .public)")
     }
 
     static func freshest(_ candidates: [ClaudeOAuthCredentials]) -> ClaudeOAuthCredentials? {

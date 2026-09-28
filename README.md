@@ -4,7 +4,7 @@
 
 **Claude Code doesn't surface your usage limits in the UI — PulseCheck fixes that. Now for Codex and OpenRouter too.**
 
-A native macOS menu bar app that shows your usage at a glance. The dropdown panel has a tab per provider — Claude Code, Codex (ChatGPT plan limits), and OpenRouter (via opencode) — each with its own meters. The menu bar title always shows the most-constrained provider so you know instantly if you can keep working.
+A native macOS menu bar app that shows your usage at a glance. Click its menu bar icon to open a panel with a tab per provider — Claude Code, Codex (ChatGPT plan limits), and OpenRouter (via opencode) — each with its own meters. The menu bar is icon-only; usage percentages appear in the panel.
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
 ![Swift 6.1](https://img.shields.io/badge/Swift-6.1-orange)
@@ -14,16 +14,16 @@ A native macOS menu bar app that shows your usage at a glance. The dropdown pane
 
 ## Features
 
-- **Menu bar title = worst-of across providers** — the number that actually limits you
+- **Icon-only menu bar** — click to view all three providers in one panel
 - **Tabbed panel** with independent meters per provider:
-  - **Claude Code** — daily (5h) and weekly (7d) % with reset countdowns
+  - **Claude Code** — five-hour and weekly (7d) % with reset countdowns
   - **Codex** — 5h and 7d ChatGPT-plan windows (read-only; never touches codex's tokens)
   - **OpenRouter** — $ daily/weekly/monthly spend via opencode's stored key, plus per-key limit when set
 - **Token-safe by design** — only ever refreshes credentials it owns; never consumes another tool's refresh token
 - **Last-updated timestamp** and manual refresh button
 - **60-second polling** with automatic exponential backoff on rate limits (429)
 - **Launch at Login** toggle via SMAppService
-- **Zero configuration** — reads credentials the CLIs already have on disk
+- **Zero configuration** — reads credentials the CLIs already store in Keychain or files
 
 ## Tech Stack
 
@@ -56,7 +56,7 @@ brew install --cask captnjo/tap/pulsecheck
 
 ### Option B: Download DMG
 
-**[Download PulseCheck-1.4.3.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.4.3/PulseCheck-1.4.3.dmg)**
+**[Download PulseCheck-1.4.4.dmg](https://github.com/Captnjo/pulsecheck/releases/download/v1.4.4/PulseCheck-1.4.4.dmg)**
 
 1. Open the downloaded DMG
 2. Drag **PulseCheck** into your **Applications** folder
@@ -84,8 +84,8 @@ To produce a DMG with drag-to-install: `./scripts/build-dmg.sh`
 
 ---
 
-**Prerequisites:** Providers appear automatically when their credentials exist on disk:
-- **Claude Code** — installed and authenticated (`claude auth login`); read from the macOS Keychain
+**Prerequisites:** Providers appear automatically when their credentials are available:
+- **Claude Code** — installed and authenticated (`claude auth login`); read from the macOS Keychain or `~/.claude/.credentials.json`
 - **Codex** — logged in with ChatGPT (`codex login`, ChatGPT mode); read from `~/.codex/auth.json`
 - **OpenRouter** — opencode authenticated with OpenRouter (`opencode auth login`); read from `~/.local/share/opencode/auth.json`
 
@@ -99,17 +99,19 @@ PulseCheck reads each tool's existing credentials and polls its usage endpoint e
 
 | Provider | Credentials source | Usage API |
 |----------|-------------------|-----------|
-| Claude Code | macOS Keychain (`Claude Code-credentials`) | `api.anthropic.com/api/oauth/usage` |
+| Claude Code | macOS Keychain (`Claude Code-credentials`), with credentials-file fallback | `api.anthropic.com/api/oauth/usage` |
 | Codex | `~/.codex/auth.json` (ChatGPT OAuth) | `chatgpt.com/backend-api/wham/usage` |
 | OpenRouter | `~/.local/share/opencode/auth.json` | `openrouter.ai/api/v1/key` |
 
 **Token safety.** Refresh tokens rotate on every use — whoever consumes one invalidates the copy the other holder has. PulseCheck therefore never sends another tool's refresh token anywhere. It refreshes only credentials it obtained through its own earlier refresh calls (stored in its own Keychain item, `PulseCheck-claude-credentials`), and treats codex/opencode credentials as strictly read-only. If a provider's token goes stale, its tab shows **"Auth expired"** and it re-syncs the next time that tool runs.
 
-If the Claude tab shows "not logged in", run `claude auth login` in your terminal.
+**Claude credential discovery.** PulseCheck enumerates references to matching Keychain items, reads each password individually, and selects the freshest decodable credentials by expiry. It also checks `~/.claude/.credentials.json` (or the directory specified by `CLAUDE_CONFIG_DIR` in the app's environment) and uses whichever Claude Code store has newer credentials. An unreadable or malformed duplicate does not prevent a readable item from being used.
+
+**v1.4.4 fixes a false "not logged in" error in v1.4.3.** The earlier duplicate-item query requested all password data at once, which macOS rejects with error `-50`. The individual reads fix that query without changing Claude Code's credentials. If Claude still appears logged out, check `claude auth status` before signing in again with `claude auth login`. Safe diagnostic logs help distinguish Keychain access failures from decoding failures. See [release notes](CHANGELOG.md).
 
 ### Keychain prompts
 
-On first launch PulseCheck asks once for access to Claude Code's keychain item — click **Always Allow** (not *Allow*, which grants a single read). PulseCheck then only touches Claude Code's item when it has no working credentials of its own (first launch, or after its own token lineage expires), so prompts should be rare.
+On first launch macOS may ask for access to Claude Code's Keychain items — choose **Always Allow** to grant ongoing access (*Allow* grants a single read). If duplicate items exist, each may require its own grant. PulseCheck reads Claude Code's stores when it needs credentials or checks for newer credentials during authentication recovery.
 
 Two things can make a prompt reappear:
 - **App updates** — grants are bound to the app's code signature; this build is ad-hoc signed, so each new version asks once more. Click **Always Allow** again. A stable Developer ID signature removes this.
@@ -133,7 +135,7 @@ AppDelegate
 ```
 
 - **UsageStore** owns the polling loop and coordinates credential loading, API calls, and token refresh
-- **CredentialsService** reads PulseCheck's shadow Keychain first, falls back to Claude Code's Keychain, tracks credential provenance (`claudeCode` vs `shadow`), and re-syncs when Claude Code holds newer credentials (compared by expiry)
+- **CredentialsService** reads PulseCheck's shadow Keychain first, falls back to Claude Code's Keychain and credentials file, tracks credential provenance (`claudeCode` vs `shadow`), and re-syncs when Claude Code holds newer credentials (compared by expiry)
 - **TokenRefreshService** is a Swift actor that deduplicates concurrent refresh requests (keyed by refresh token) and is only ever invoked with PulseCheck-owned tokens
 - **AnthropicAPIClient** detects 403 scope-loss (Anthropic server bug) and routes to the auth recovery path
 

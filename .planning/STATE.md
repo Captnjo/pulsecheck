@@ -58,3 +58,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Last session: 2026-04-03
 Stopped at: Milestone v1.1 complete
 Resume file: None
+
+## Maintenance release v1.4.4 (2026-09-28)
+
+Claude Keychain query regression repaired: enumerate persistent references, read passwords individually, select freshest. Seven regression tests added (48 total). Release documentation, DMG, GitHub/NAS source and tags, and Homebrew cask are being prepared under the existing debug session.
